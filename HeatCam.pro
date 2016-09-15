@@ -20,12 +20,15 @@ UI_DIR = ./ui
 SOURCES += main.cpp\
         mainwindow.cpp \
     visualizationform.cpp \
-    imagegraphicsviewform.cpp
+    imagegraphicsviewform.cpp \
+    temperaturedialog.cpp
 
 HEADERS  += mainwindow.h \
     visualizationform.h \
-    imagegraphicsviewform.h
+    imagegraphicsviewform.h \
+    temperaturedialog.h
 
 FORMS    += mainwindow.ui \
     visualizationform.ui \
-    imagegraphicsviewform.ui
+    imagegraphicsviewform.ui \
+    temperaturedialog.ui

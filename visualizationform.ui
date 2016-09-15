@@ -48,7 +48,14 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="0" colspan="2">
+      <item row="1" column="2">
+       <widget class="QPushButton" name="tempPushButton">
+        <property name="text">
+         <string>Set min-max temperature</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0" colspan="3">
        <widget class="QGraphicsView" name="graphicsView"/>
       </item>
      </layout>

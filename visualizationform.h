@@ -6,6 +6,10 @@
 #include <QTextStream>
 #include <QProcess>
 #include <QRegExp>
+#include <QGraphicsScene>
+#include <QPainter>
+
+#include "temperaturedialog.h"
 
 namespace Ui {
 class VisualizationForm;
@@ -26,9 +30,24 @@ private slots:
     void on_loadPushButton_clicked();
     void slotXlsToCsv(QFile &file);
 
+    void on_fiPushButton_clicked();
+
+    void on_origialPushButton_clicked();
+
+    void on_savePushButton_clicked();
+
+    void on_tempPushButton_clicked();
+    void slotTempMinMax(double min, double max);
+
 private:
     Ui::VisualizationForm *ui;
     QMap<int, QStringList> heatMatrixMap;
+    void drawHeatMap(QMap<int, QStringList> &heatMap);
+    QString heatFilenamecsv;
+    QImage image;
+    QGraphicsScene scene;
+    double zoom;
+    double tmin, tmax;
 };
 
 #endif // VISUALIZATIONFORM_H
