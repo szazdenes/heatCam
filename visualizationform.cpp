@@ -80,7 +80,8 @@ void VisualizationForm::drawHeatMap(QMap<int, QStringList> &heatMap)
 
     int width = heatMap[heatMap.keys().first()].size();
     int height = heatMap.keys().size();
-    image = QImage(width+60, height, QImage::Format_ARGB32_Premultiplied);
+    image = QImage(width+60, height+5, QImage::Format_ARGB32_Premultiplied);
+    image.fill(Qt::white);
     for(int w = 0; w < width; w++){
         for(int h = 0; h < height; h++){
             QColor pixColor;
@@ -104,10 +105,8 @@ void VisualizationForm::drawHeatMap(QMap<int, QStringList> &heatMap)
     }
 
     QPainter painter(&image);
-    QPen pen;
-    pen.setColor(Qt::black);
-    pen.setWidthF(0.5);
-    painter.setPen(pen);
+
+
 
     for(int w = width+2; w <= width+28; w++){
         for(int h = 0; h < height; h++){
@@ -128,13 +127,25 @@ void VisualizationForm::drawHeatMap(QMap<int, QStringList> &heatMap)
                     pixColor.setRgbF(1, 2 - (temp-tmin)/((tmax-tmin)/2.0), 2 - (temp-tmin)/((tmax-tmin)/2.0));
             }
             image.setPixelColor(w, h, pixColor);
-            if((int)temp % 10 == 0){
-                painter.setFont(QFont("SansSerif", 10, QFont::Normal));
-                painter.drawText(QRect(width+31, h-1, 29, 10), Qt::AlignCenter | Qt::AlignVCenter, QString::number((int)temp));
-            }
         }
     }
 
+    painter.drawText(QRect(width+31, height-5*(double)height/5.0, 29, 15), Qt::AlignCenter | Qt::AlignVCenter, "°C");
+    painter.drawText(QRect(width+31, height-10-4*(double)height/5.0, 29, 15), Qt::AlignCenter | Qt::AlignVCenter, QString::number(qRound(tmax - (height-4*(double)height/5.0)*(tmax-tmin)/(height))));
+    painter.drawText(QRect(width+31, height-10-3*(double)height/5.0, 29, 15), Qt::AlignCenter | Qt::AlignVCenter, QString::number(qRound(tmax - (height-3*(double)height/5.0)*(tmax-tmin)/(height))));
+    painter.drawText(QRect(width+31, height-10-2*(double)height/5.0, 29, 15), Qt::AlignCenter | Qt::AlignVCenter, QString::number(qRound(tmax - (height-2*(double)height/5.0)*(tmax-tmin)/(height))));
+    painter.drawText(QRect(width+31, height-10-1*(double)height/5.0, 29, 15), Qt::AlignCenter | Qt::AlignVCenter, QString::number(qRound(tmax - (height-1*(double)height/5.0)*(tmax-tmin)/(height))));
+    painter.drawText(QRect(width+31, height-10, 29, 15), Qt::AlignCenter | Qt::AlignVCenter, QString::number(qRound(tmax - (height-0*(double)height/5.0)*(tmax-tmin)/(height))));
+
+    QPen pen;
+    pen.setColor(Qt::black);
+    pen.setWidth(2);
+    painter.setPen(pen);
+    painter.drawLine(width+15, height-4*(double)height/5.0, width+35, height-4*(double)height/5.0);
+    painter.drawLine(width+15, height-3*(double)height/5.0, width+35, height-3*(double)height/5.0);
+    painter.drawLine(width+15, height-2*(double)height/5.0, width+35, height-2*(double)height/5.0);
+    painter.drawLine(width+15, height-1*(double)height/5.0, width+35, height-1*(double)height/5.0);
+    painter.drawLine(width+15, height-2, width+35, height-1);
 
     scene.clear();
     scene.addPixmap(QPixmap::fromImage(image));
