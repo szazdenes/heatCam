@@ -55,6 +55,7 @@ private:
     double tmin, tmax;
     QColor getPixelColor(int palette, double temp, double tMin, double tMax);
     int paletteNum;
+    void rapidEvaluation();
 };
 
 #endif // VISUALIZATIONFORM_H

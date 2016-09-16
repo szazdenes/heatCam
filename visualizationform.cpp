@@ -14,6 +14,8 @@ VisualizationForm::VisualizationForm(QWidget *parent) :
     tmin = 0;
     tmax = 60;
     paletteNum = 1;
+
+    rapidEvaluation();
 }
 
 VisualizationForm::~VisualizationForm()
@@ -168,6 +170,64 @@ QColor VisualizationForm::getPixelColor(int palette, double temp, double tMin, d
 
     return pixelColor;
 
+}
+
+void VisualizationForm::rapidEvaluation()
+{
+
+    QStringList filenames = QFileDialog::getOpenFileNames(this, "Open heat data", "../../", "*.xls");
+
+    foreach(QString heatfilename, filenames){
+        heatMatrixMap.clear();
+        QFile heatFile(heatfilename);
+        if(!heatFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            qDebug("baj");
+            return;
+        }
+
+        QFile heatFilecsv;
+        if(heatFile.fileName().endsWith(".xls")){
+            heatFilenamecsv = QString(heatFile.fileName()).replace(".xls", ".csv");
+            if(!QFile(heatFilenamecsv).exists())
+                emit signalXlsToCsv(heatFile);
+            if(QFile(heatFilenamecsv).exists())
+                heatFilecsv.setFileName(heatFilenamecsv);
+            else
+                return;
+        }
+
+        heatFile.close();
+
+        if(!heatFilecsv.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            qDebug("baj");
+            return;
+        }
+
+        QTextStream read(&heatFilecsv);
+        QString line;
+        int count = 1;
+
+        while(!read.atEnd()){
+            line = read.readLine();
+
+            if(line.startsWith("0") || line.startsWith("1") || line.startsWith("2") || line.startsWith("3") || line.startsWith("4") || line.startsWith("5") || line.startsWith("6") || line.startsWith("7") || line.startsWith("8") || line.startsWith("9")){
+                QStringList lineData = QString(line).split(",");
+                heatMatrixMap[count] = lineData;
+                count++;
+            }
+        }
+
+        tmin = 10;
+        tmax = 60;
+
+        paletteNum = 1;
+        drawHeatMap(heatMatrixMap);
+        ui->savePushButton->click();
+        paletteNum = 2;
+        drawHeatMap(heatMatrixMap);
+        ui->savePushButton->click();
+
+    }
 }
 
 void VisualizationForm::on_fiPushButton_clicked()
