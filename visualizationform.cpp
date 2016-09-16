@@ -13,6 +13,7 @@ VisualizationForm::VisualizationForm(QWidget *parent) :
     zoom = 1;
     tmin = 0;
     tmax = 60;
+    paletteNum = 1;
 }
 
 VisualizationForm::~VisualizationForm()
@@ -32,12 +33,12 @@ void VisualizationForm::on_loadPushButton_clicked()
     QFile heatFilecsv;
     if(heatFile.fileName().endsWith(".xls")){
         heatFilenamecsv = QString(heatFile.fileName()).replace(".xls", ".csv");
-//        if(!QFile(heatFilenamecsv).exists())
+        if(!QFile(heatFilenamecsv).exists())
             emit signalXlsToCsv(heatFile);
-//        if(QFile(heatFilenamecsv).exists())
+        if(QFile(heatFilenamecsv).exists())
             heatFilecsv.setFileName(heatFilenamecsv);
-//        else
-//            return;
+        else
+            return;
     }
 
     heatFile.close();
@@ -70,7 +71,8 @@ void VisualizationForm::slotXlsToCsv(QFile &file)
     QProcess proc;
     QString filename = file.fileName();
     QString filenamecsv(QString(filename).replace(".xls", ".csv"));
-    QString cmd("ssconvert " + filename + " " + filenamecsv);
+    QString dir = QString(filename).remove(filename.split("/").last());
+    QString cmd("libreoffice --headless --convert-to csv " + filename + " --outdir " + dir);
     proc.execute(cmd);
     proc.waitForFinished();
     proc.close();
@@ -78,79 +80,93 @@ void VisualizationForm::slotXlsToCsv(QFile &file)
 
 void VisualizationForm::drawHeatMap(QMap<int, QStringList> &heatMap)
 {
-    delete image;
-    int width = heatMap[heatMap.keys().first()].size();
-    int height = heatMap.keys().size();
-    image = new QImage(width+60, height+5, QImage::Format_ARGB32_Premultiplied);
-    image->fill(Qt::white);
-    for(int w = 0; w < width; w++){
-        for(int h = 0; h < height; h++){
-            QColor pixColor;
-            double temp = QString(heatMap[h+1].at(w)).toDouble();
-            if(temp == tmin + (tmax-tmin)/2.0)
-                pixColor = QColor(Qt::white);
-            if(temp < tmin + (tmax-tmin)/2.0){
-                if(temp < tmin || temp > tmax)
-                    pixColor = QColor(Qt::green);
-                else
-                    pixColor.setRgbF((temp-tmin)/((tmax-tmin)/2.0), (temp-tmin)/((tmax-tmin)/2.0), 1);
+    if(!heatMap.isEmpty()){
+        delete image;
+        int width = heatMap[heatMap.keys().first()].size();
+        int height = heatMap.keys().size();
+        image = new QImage(width+60, height+5, QImage::Format_ARGB32_Premultiplied);
+        image->fill(Qt::white);
+        for(int w = 0; w < width; w++){
+            for(int h = 0; h < height; h++){
+                QColor pixColor;
+                double temp = QString(heatMap[h+1].at(w)).toDouble();
+                pixColor = getPixelColor(paletteNum, temp, tmin, tmax);
+                image->setPixelColor(w, h, pixColor);
             }
-            if(temp > tmin + (tmax-tmin)/2.0){
-                if(temp < tmin || temp > tmax)
-                    pixColor = QColor(Qt::green);
-                else
-                    pixColor.setRgbF(1, 2 - (temp-tmin)/((tmax-tmin)/2.0), 2 - (temp-tmin)/((tmax-tmin)/2.0));
+        }
+
+        QPainter painter(image);
+
+
+
+        for(int w = width+2; w <= width+28; w++){
+            for(int h = 0; h < height; h++){
+                QColor pixColor;
+                double temp = tmax - h*(tmax-tmin)/(height-1);
+                pixColor = getPixelColor(paletteNum, temp, tmin, tmax);
+                image->setPixelColor(w, h, pixColor);
             }
-            image->setPixelColor(w, h, pixColor);
+        }
+
+        painter.drawText(QRect(width+31, height-5*(double)height/5.0, 29, 15), Qt::AlignCenter | Qt::AlignVCenter, "°C");
+        painter.drawText(QRect(width+31, height-10-4*(double)height/5.0, 29, 15), Qt::AlignCenter | Qt::AlignVCenter, QString::number(qRound(tmax - (height-4*(double)height/5.0)*(tmax-tmin)/(height))));
+        painter.drawText(QRect(width+31, height-10-3*(double)height/5.0, 29, 15), Qt::AlignCenter | Qt::AlignVCenter, QString::number(qRound(tmax - (height-3*(double)height/5.0)*(tmax-tmin)/(height))));
+        painter.drawText(QRect(width+31, height-10-2*(double)height/5.0, 29, 15), Qt::AlignCenter | Qt::AlignVCenter, QString::number(qRound(tmax - (height-2*(double)height/5.0)*(tmax-tmin)/(height))));
+        painter.drawText(QRect(width+31, height-10-1*(double)height/5.0, 29, 15), Qt::AlignCenter | Qt::AlignVCenter, QString::number(qRound(tmax - (height-1*(double)height/5.0)*(tmax-tmin)/(height))));
+        painter.drawText(QRect(width+31, height-10, 29, 15), Qt::AlignCenter | Qt::AlignVCenter, QString::number(qRound(tmax - (height-0*(double)height/5.0)*(tmax-tmin)/(height))));
+
+        QPen pen;
+        pen.setColor(Qt::black);
+        pen.setWidth(2);
+        painter.setPen(pen);
+        painter.drawLine(width+15, height-4*(double)height/5.0, width+35, height-4*(double)height/5.0);
+        painter.drawLine(width+15, height-3*(double)height/5.0, width+35, height-3*(double)height/5.0);
+        painter.drawLine(width+15, height-2*(double)height/5.0, width+35, height-2*(double)height/5.0);
+        painter.drawLine(width+15, height-1*(double)height/5.0, width+35, height-1*(double)height/5.0);
+        painter.drawLine(width+15, height-1, width+35, height-1);
+
+        scene.clear();
+        scene.addPixmap(QPixmap::fromImage(*image));
+    }
+
+    else
+        return;
+
+
+}
+
+QColor VisualizationForm::getPixelColor(int palette, double temp, double tMin, double tMax)
+{
+    QColor pixelColor;
+
+    /*color palette*/
+    if(palette == 1){
+        if(tMin + (tMax-tMin)/2.0 == temp)
+            pixelColor = QColor(Qt::green);
+        if(temp < tMin + (tMax-tMin)/2.0){
+            if(temp < tMin || temp > tMax)
+                pixelColor = QColor(Qt::yellow);
+            else
+                pixelColor.setRgbF(0, (temp-tMin)/((tMax-tMin)/2.0), 1 - (temp-tMin)/((tMax-tMin)/2.0));
+        }
+        if(temp > tMin + (tMax-tMin)/2.0){
+            if(temp < tMin || temp > tMax)
+                pixelColor = QColor(Qt::yellow);
+            else
+                pixelColor.setRgbF((temp-tMin)/((tMax-tMin)/2.0) - 1, 2 - (temp-tMin)/((tMax-tMin)/2.0), 0);
         }
     }
 
-    QPainter painter(image);
+    /*white-black palette*/
+    if(palette == 2){
 
-
-
-    for(int w = width+2; w <= width+28; w++){
-        for(int h = 0; h < height; h++){
-            QColor pixColor;
-            double temp = tmax - h*(tmax-tmin)/(height-1);
-            if(temp == tmin + (tmax-tmin)/2.0)
-                pixColor = QColor(Qt::white);
-            if(temp < tmin + (tmax-tmin)/2.0){
-                if(temp < tmin || temp > tmax)
-                    pixColor = QColor(Qt::green);
-                else
-                    pixColor.setRgbF((temp-tmin)/((tmax-tmin)/2.0), (temp-tmin)/((tmax-tmin)/2.0), 1);
-            }
-            if(temp > tmin + (tmax-tmin)/2.0){
-                if(temp < tmin || temp > tmax)
-                    pixColor = QColor(Qt::green);
-                else
-                    pixColor.setRgbF(1, 2 - (temp-tmin)/((tmax-tmin)/2.0), 2 - (temp-tmin)/((tmax-tmin)/2.0));
-            }
-            image->setPixelColor(w, h, pixColor);
-        }
+        if(temp < tMin || temp > tMax)
+            pixelColor = QColor(Qt::yellow);
+        else
+            pixelColor.setRgbF(1 - (temp-tMin)/((tMax-tMin)), 1 - (temp-tMin)/((tMax-tMin)), 1 - (temp-tMin)/((tMax-tMin)));
     }
 
-    painter.drawText(QRect(width+31, height-5*(double)height/5.0, 29, 15), Qt::AlignCenter | Qt::AlignVCenter, "°C");
-    painter.drawText(QRect(width+31, height-10-4*(double)height/5.0, 29, 15), Qt::AlignCenter | Qt::AlignVCenter, QString::number(qRound(tmax - (height-4*(double)height/5.0)*(tmax-tmin)/(height))));
-    painter.drawText(QRect(width+31, height-10-3*(double)height/5.0, 29, 15), Qt::AlignCenter | Qt::AlignVCenter, QString::number(qRound(tmax - (height-3*(double)height/5.0)*(tmax-tmin)/(height))));
-    painter.drawText(QRect(width+31, height-10-2*(double)height/5.0, 29, 15), Qt::AlignCenter | Qt::AlignVCenter, QString::number(qRound(tmax - (height-2*(double)height/5.0)*(tmax-tmin)/(height))));
-    painter.drawText(QRect(width+31, height-10-1*(double)height/5.0, 29, 15), Qt::AlignCenter | Qt::AlignVCenter, QString::number(qRound(tmax - (height-1*(double)height/5.0)*(tmax-tmin)/(height))));
-    painter.drawText(QRect(width+31, height-10, 29, 15), Qt::AlignCenter | Qt::AlignVCenter, QString::number(qRound(tmax - (height-0*(double)height/5.0)*(tmax-tmin)/(height))));
-
-    QPen pen;
-    pen.setColor(Qt::black);
-    pen.setWidth(2);
-    painter.setPen(pen);
-    painter.drawLine(width+15, height-4*(double)height/5.0, width+35, height-4*(double)height/5.0);
-    painter.drawLine(width+15, height-3*(double)height/5.0, width+35, height-3*(double)height/5.0);
-    painter.drawLine(width+15, height-2*(double)height/5.0, width+35, height-2*(double)height/5.0);
-    painter.drawLine(width+15, height-1*(double)height/5.0, width+35, height-1*(double)height/5.0);
-    painter.drawLine(width+15, height-2, width+35, height-1);
-
-    scene.clear();
-    scene.addPixmap(QPixmap::fromImage(*image));
-
+    return pixelColor;
 
 }
 
@@ -174,16 +190,22 @@ void VisualizationForm::on_origialPushButton_clicked()
 
 void VisualizationForm::on_savePushButton_clicked()
 {
-    QString saveName = heatFilenamecsv.replace(".csv", ".png");
-    image->save(saveName);
+    QString saveName = heatFilenamecsv.remove(".csv");
+    if(paletteNum == 1)
+        image->save(saveName + "_col.png");
+    if(paletteNum == 2)
+        image->save(saveName + "_bw.png");
 }
 
 void VisualizationForm::on_tempPushButton_clicked()
 {
     TemperatureDialog temp;
+    connect(&temp, &TemperatureDialog::signalPaletteChanged, this, &VisualizationForm::slotPalletteChanged);
     connect(this, &VisualizationForm::signalSendTminTmax, &temp, &TemperatureDialog::slotTminTmax);
     connect(&temp, &TemperatureDialog::signalSendMinMax, this, &VisualizationForm::slotTempMinMax);
+    connect(this, &VisualizationForm::signalSendPalette, &temp, &TemperatureDialog::slotSetPalette);
     emit signalSendTminTmax(tmin, tmax);
+    emit signalSendPalette(paletteNum);
     temp.exec();
 
 }
@@ -193,4 +215,9 @@ void VisualizationForm::slotTempMinMax(double min, double max)
     tmin = min;
     tmax = max;
     drawHeatMap(heatMatrixMap);
+}
+
+void VisualizationForm::slotPalletteChanged(int palette)
+{
+    paletteNum = palette;
 }

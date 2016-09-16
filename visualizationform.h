@@ -26,6 +26,7 @@ public:
 signals:
     void signalXlsToCsv(QFile &file);
     void signalSendTminTmax(double min, double max);
+    void signalSendPalette(int palette);
 
 private slots:
     void on_loadPushButton_clicked();
@@ -39,6 +40,7 @@ private slots:
 
     void on_tempPushButton_clicked();
     void slotTempMinMax(double min, double max);
+    void slotPalletteChanged(int palette);
 
 private:
     Ui::VisualizationForm *ui;
@@ -49,6 +51,8 @@ private:
     QGraphicsScene scene;
     double zoom;
     double tmin, tmax;
+    QColor getPixelColor(int palette, double temp, double tMin, double tMax);
+    int paletteNum;
 };
 
 #endif // VISUALIZATIONFORM_H
