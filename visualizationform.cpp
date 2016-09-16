@@ -17,6 +17,7 @@ VisualizationForm::VisualizationForm(QWidget *parent) :
 
 VisualizationForm::~VisualizationForm()
 {
+    delete image;
     delete ui;
 }
 
@@ -31,12 +32,12 @@ void VisualizationForm::on_loadPushButton_clicked()
     QFile heatFilecsv;
     if(heatFile.fileName().endsWith(".xls")){
         heatFilenamecsv = QString(heatFile.fileName()).replace(".xls", ".csv");
-        if(!QFile(heatFilenamecsv).exists())
+//        if(!QFile(heatFilenamecsv).exists())
             emit signalXlsToCsv(heatFile);
-        if(QFile(heatFilenamecsv).exists())
+//        if(QFile(heatFilenamecsv).exists())
             heatFilecsv.setFileName(heatFilenamecsv);
-        else
-            return;
+//        else
+//            return;
     }
 
     heatFile.close();
@@ -77,11 +78,11 @@ void VisualizationForm::slotXlsToCsv(QFile &file)
 
 void VisualizationForm::drawHeatMap(QMap<int, QStringList> &heatMap)
 {
-
+    delete image;
     int width = heatMap[heatMap.keys().first()].size();
     int height = heatMap.keys().size();
-    image = QImage(width+60, height+5, QImage::Format_ARGB32_Premultiplied);
-    image.fill(Qt::white);
+    image = new QImage(width+60, height+5, QImage::Format_ARGB32);
+    image->fill(Qt::white);
     for(int w = 0; w < width; w++){
         for(int h = 0; h < height; h++){
             QColor pixColor;
@@ -100,11 +101,11 @@ void VisualizationForm::drawHeatMap(QMap<int, QStringList> &heatMap)
                 else
                     pixColor.setRgbF(1, 2 - (temp-tmin)/((tmax-tmin)/2.0), 2 - (temp-tmin)/((tmax-tmin)/2.0));
             }
-            image.setPixelColor(w, h, pixColor);
+            image->setPixelColor(w, h, pixColor);
         }
     }
 
-    QPainter painter(&image);
+    QPainter painter(image);
 
 
 
@@ -126,7 +127,7 @@ void VisualizationForm::drawHeatMap(QMap<int, QStringList> &heatMap)
                 else
                     pixColor.setRgbF(1, 2 - (temp-tmin)/((tmax-tmin)/2.0), 2 - (temp-tmin)/((tmax-tmin)/2.0));
             }
-            image.setPixelColor(w, h, pixColor);
+            image->setPixelColor(w, h, pixColor);
         }
     }
 
@@ -148,7 +149,7 @@ void VisualizationForm::drawHeatMap(QMap<int, QStringList> &heatMap)
     painter.drawLine(width+15, height-2, width+35, height-1);
 
     scene.clear();
-    scene.addPixmap(QPixmap::fromImage(image));
+    scene.addPixmap(QPixmap::fromImage(*image));
 
 
 }
@@ -157,7 +158,7 @@ void VisualizationForm::on_fiPushButton_clicked()
 {
     ui->graphicsView->scale(1.0/zoom, 1.0/zoom);
 
-    QRectF imageRect = image.rect();
+    QRectF imageRect = image->rect();
     QRectF rect = ui->graphicsView->viewport()->rect();
     double fitSize = qMin<double>(rect.width() / imageRect.width(), rect.height() / imageRect.height());
 
@@ -174,7 +175,7 @@ void VisualizationForm::on_origialPushButton_clicked()
 void VisualizationForm::on_savePushButton_clicked()
 {
     QString saveName = heatFilenamecsv.replace(".csv", ".png");
-    image.save(saveName);
+    image->save(saveName);
 }
 
 void VisualizationForm::on_tempPushButton_clicked()

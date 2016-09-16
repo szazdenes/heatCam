@@ -44,7 +44,7 @@ private:
     QMap<int, QStringList> heatMatrixMap;
     void drawHeatMap(QMap<int, QStringList> &heatMap);
     QString heatFilenamecsv;
-    QImage image;
+    QImage *image;
     QGraphicsScene scene;
     double zoom;
     double tmin, tmax;
