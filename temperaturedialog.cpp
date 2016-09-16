@@ -6,8 +6,6 @@ TemperatureDialog::TemperatureDialog(QWidget *parent) :
     ui(new Ui::TemperatureDialog)
 {
     ui->setupUi(this);
-    ui->minDoubleSpinBox->setValue(0.0);
-    ui->maxDoubleSpinBox->setValue(60.0);
 }
 
 TemperatureDialog::~TemperatureDialog()
@@ -23,4 +21,10 @@ void TemperatureDialog::on_buttonBox_accepted()
 void TemperatureDialog::on_buttonBox_rejected()
 {
     this->close();
+}
+
+void TemperatureDialog::slotTminTmax(double tmin, double tmax)
+{
+    ui->minDoubleSpinBox->setValue(tmin);
+    ui->maxDoubleSpinBox->setValue(tmax);
 }

@@ -25,6 +25,7 @@ public:
 
 signals:
     void signalXlsToCsv(QFile &file);
+    void signalSendTminTmax(double min, double max);
 
 private slots:
     void on_loadPushButton_clicked();

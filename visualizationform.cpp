@@ -81,7 +81,7 @@ void VisualizationForm::drawHeatMap(QMap<int, QStringList> &heatMap)
     delete image;
     int width = heatMap[heatMap.keys().first()].size();
     int height = heatMap.keys().size();
-    image = new QImage(width+60, height+5, QImage::Format_ARGB32);
+    image = new QImage(width+60, height+5, QImage::Format_ARGB32_Premultiplied);
     image->fill(Qt::white);
     for(int w = 0; w < width; w++){
         for(int h = 0; h < height; h++){
@@ -181,8 +181,11 @@ void VisualizationForm::on_savePushButton_clicked()
 void VisualizationForm::on_tempPushButton_clicked()
 {
     TemperatureDialog temp;
+    connect(this, &VisualizationForm::signalSendTminTmax, &temp, &TemperatureDialog::slotTminTmax);
     connect(&temp, &TemperatureDialog::signalSendMinMax, this, &VisualizationForm::slotTempMinMax);
+    emit signalSendTminTmax(tmin, tmax);
     temp.exec();
+
 }
 
 void VisualizationForm::slotTempMinMax(double min, double max)

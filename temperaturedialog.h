@@ -18,6 +18,9 @@ public:
 signals:
     void signalSendMinMax(double min, double max);
 
+public slots:
+    void slotTminTmax(double tmin, double tmax);
+
 private slots:
     void on_buttonBox_accepted();
 
