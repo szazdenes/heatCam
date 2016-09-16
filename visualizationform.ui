@@ -48,15 +48,22 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="2">
+      <item row="1" column="3">
        <widget class="QPushButton" name="tempPushButton">
         <property name="text">
-         <string>Set min-max temperature</string>
+         <string>Temperature config</string>
         </property>
        </widget>
       </item>
-      <item row="0" column="0" colspan="3">
+      <item row="0" column="0" colspan="4">
        <widget class="QGraphicsView" name="graphicsView"/>
+      </item>
+      <item row="1" column="2">
+       <widget class="QPushButton" name="clearPushButton">
+        <property name="text">
+         <string>Clear screen</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>

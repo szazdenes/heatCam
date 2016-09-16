@@ -24,6 +24,7 @@ VisualizationForm::~VisualizationForm()
 
 void VisualizationForm::on_loadPushButton_clicked()
 {
+    heatMatrixMap.clear();
     QFile heatFile(QFileDialog::getOpenFileName(this, "Open heat data", "../../", "*.xls"));
     if(!heatFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
         qDebug("baj");
@@ -70,7 +71,6 @@ void VisualizationForm::slotXlsToCsv(QFile &file)
 {
     QProcess proc;
     QString filename = file.fileName();
-    QString filenamecsv(QString(filename).replace(".xls", ".csv"));
     QString dir = QString(filename).remove(filename.split("/").last());
     QString cmd("libreoffice --headless --convert-to csv " + filename + " --outdir " + dir);
     proc.execute(cmd);
@@ -220,4 +220,10 @@ void VisualizationForm::slotTempMinMax(double min, double max)
 void VisualizationForm::slotPalletteChanged(int palette)
 {
     paletteNum = palette;
+}
+
+void VisualizationForm::on_clearPushButton_clicked()
+{
+    heatMatrixMap.clear();
+    scene.clear();
 }

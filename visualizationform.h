@@ -42,6 +42,8 @@ private slots:
     void slotTempMinMax(double min, double max);
     void slotPalletteChanged(int palette);
 
+    void on_clearPushButton_clicked();
+
 private:
     Ui::VisualizationForm *ui;
     QMap<int, QStringList> heatMatrixMap;
