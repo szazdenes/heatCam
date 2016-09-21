@@ -7,6 +7,8 @@ VisualizationForm::VisualizationForm(QWidget *parent) :
 {
     ui->setupUi(this);
     connect(this, &VisualizationForm::signalXlsToCsv, this, &VisualizationForm::slotXlsToCsv);
+    connect(ui->graphicsView, &ImageGraphicsviewForm::signalMouseMoved, this, &VisualizationForm::slotMouseMoved);
+    connect(ui->graphicsView, &ImageGraphicsviewForm::signalLeftButtonPressed, this, &VisualizationForm::slotMouseButtonPressed);
 
     ui->graphicsView->setScene(&scene);
     ui->graphicsView->setTransformationAnchor(QGraphicsView::AnchorViewCenter);
@@ -14,13 +16,15 @@ VisualizationForm::VisualizationForm(QWidget *parent) :
     tmin = 0;
     tmax = 60;
     paletteNum = 1;
+    imageLoaded = false;
 
-    rapidEvaluation();
+//    rapidEvaluation();
 }
 
 VisualizationForm::~VisualizationForm()
 {
     delete image;
+    imageLoaded = false;
     delete ui;
 }
 
@@ -84,6 +88,7 @@ void VisualizationForm::drawHeatMap(QMap<int, QStringList> &heatMap)
 {
     if(!heatMap.isEmpty()){
         delete image;
+        imageLoaded = false;
         int width = heatMap[heatMap.keys().first()].size();
         int height = heatMap.keys().size();
         image = new QImage(width+60, height+5, QImage::Format_ARGB32_Premultiplied);
@@ -91,12 +96,15 @@ void VisualizationForm::drawHeatMap(QMap<int, QStringList> &heatMap)
         for(int w = 0; w < width; w++){
             for(int h = 0; h < height; h++){
                 QColor pixColor;
-                double temp = QString(heatMap[h+1].at(w)).toDouble();
-                pixColor = getPixelColor(paletteNum, temp, tmin, tmax);
-                image->setPixelColor(w, h, pixColor);
+                if(!heatMap[h+1].isEmpty()){
+                    double temp = QString(heatMap[h+1].at(w)).toDouble();
+                    pixColor = getPixelColor(paletteNum, temp, tmin, tmax);
+                    image->setPixelColor(w, h, pixColor);
+                }
             }
         }
 
+        imageLoaded = true;
         QPainter painter(image);
 
 
@@ -286,4 +294,20 @@ void VisualizationForm::on_clearPushButton_clicked()
 {
     heatMatrixMap.clear();
     scene.clear();
+}
+
+void VisualizationForm::slotMouseMoved(QPointF pos)
+{
+    if(imageLoaded == true){
+        if(qRound(pos.x()) >= 0 && qRound(pos.y()) >=0 && qRound(pos.x()) <= image->width() && qRound(pos.y()) <= image->height()){
+            if(!heatMatrixMap[qRound(pos.y())].isEmpty() && qRound(pos.y()) < heatMatrixMap.keys().size() && qRound(pos.x()) < heatMatrixMap[qRound(pos.y())].size()){
+                QToolTip::showText(QCursor::pos(), heatMatrixMap[qRound(pos.y())].at(qRound(pos.x())), ui->graphicsView);
+            }
+        }
+    }
+}
+
+void VisualizationForm::slotMouseButtonPressed(QPointF pos)
+{
+    qDebug() << QToolTip::text();
 }

@@ -8,6 +8,9 @@
 #include <QRegExp>
 #include <QGraphicsScene>
 #include <QPainter>
+#include <QToolTip>
+#include <QDebug>
+
 
 #include "temperaturedialog.h"
 
@@ -43,6 +46,8 @@ private slots:
     void slotPalletteChanged(int palette);
 
     void on_clearPushButton_clicked();
+    void slotMouseMoved(QPointF pos);
+    void slotMouseButtonPressed(QPointF pos);
 
 private:
     Ui::VisualizationForm *ui;
@@ -56,6 +61,7 @@ private:
     QColor getPixelColor(int palette, double temp, double tMin, double tMax);
     int paletteNum;
     void rapidEvaluation();
+    bool imageLoaded;
 };
 
 #endif // VISUALIZATIONFORM_H
