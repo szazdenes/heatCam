@@ -19,7 +19,7 @@
      <widget class="VisualizationForm" name="visualizeWidget" native="true"/>
     </item>
     <item row="0" column="1">
-     <widget class="QWidget" name="analyzewidget" native="true"/>
+     <widget class="AnalyzationForm" name="analyzewidget" native="true"/>
     </item>
    </layout>
   </widget>
@@ -49,6 +49,12 @@
    <class>VisualizationForm</class>
    <extends>QWidget</extends>
    <header>visualizationform.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>AnalyzationForm</class>
+   <extends>QWidget</extends>
+   <header>analyzationform.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

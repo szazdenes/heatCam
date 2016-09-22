@@ -4,10 +4,12 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui svg
 CONFIG += qwt
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+
+LIBS += qwt/build/lib/libqwt.a
 
 TARGET = HeatCam
 TEMPLATE = app
@@ -22,14 +24,17 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     visualizationform.cpp \
     imagegraphicsviewform.cpp \
-    temperaturedialog.cpp
+    temperaturedialog.cpp \
+    analyzationform.cpp
 
 HEADERS  += mainwindow.h \
     visualizationform.h \
     imagegraphicsviewform.h \
-    temperaturedialog.h
+    temperaturedialog.h \
+    analyzationform.h
 
 FORMS    += mainwindow.ui \
     visualizationform.ui \
     imagegraphicsviewform.ui \
-    temperaturedialog.ui
+    temperaturedialog.ui \
+    analyzationform.ui

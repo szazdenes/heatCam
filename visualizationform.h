@@ -30,6 +30,7 @@ signals:
     void signalSendTminTmax(double min, double max);
     void signalSendPalette(int palette);
     void signalHeatLineAdded();
+    void signalSendLineData(QStringList lineData);
 
 private slots:
     void on_loadPushButton_clicked();

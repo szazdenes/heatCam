@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>AnalyzationForm</class>
+ <widget class="QWidget" name="AnalyzationForm">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>743</width>
+    <height>623</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout_2">
+   <item row="0" column="0">
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>Analization</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_3" rowstretch="1,2">
+      <item row="0" column="0">
+       <widget class="QwtPlot" name="plotWidget" native="true"/>
+      </item>
+      <item row="1" column="0">
+       <widget class="QTableWidget" name="tableWidget">
+        <property name="alternatingRowColors">
+         <bool>false</bool>
+        </property>
+        <property name="verticalScrollMode">
+         <enum>QAbstractItemView::ScrollPerPixel</enum>
+        </property>
+        <property name="horizontalScrollMode">
+         <enum>QAbstractItemView::ScrollPerPixel</enum>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QwtPlot</class>
+   <extends>QWidget</extends>
+   <header>qwtplot.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

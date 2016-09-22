@@ -339,7 +339,7 @@ void VisualizationForm::slotMouseMoved(QPointF pos)
     if(imageLoaded == true){
         if(qRound(pos.x()) >= 0 && qRound(pos.y()) >=0 && qRound(pos.x()) <= image->width() && qRound(pos.y()) <= image->height()){
             if(!heatMatrixMap[qRound(pos.y())].isEmpty() && qRound(pos.y()) < heatMatrixMap.keys().size() && qRound(pos.x()) < heatMatrixMap[qRound(pos.y())].size()){
-                QToolTip::showText(QCursor::pos(), heatMatrixMap[qRound(pos.y())].at(qRound(pos.x())), ui->graphicsView);
+                QToolTip::showText(QCursor::pos(), "T=" + heatMatrixMap[qRound(pos.y())].at(qRound(pos.x())) + " °C", ui->graphicsView);
 
                 if(isButtonPressed == true){
                     refreshImageMask(start, QPoint(qRound(pos.x()), qRound(pos.y())));
@@ -367,11 +367,12 @@ void VisualizationForm::slotMouseButtonReleased(QPointF pos)
 void VisualizationForm::slotGetDataFromHeatLine()
 {
     QStringList lineData;
-    for(double i = start.x(); i < end.x(); i += (double)(end.x() - start.x()) / qAbs(end.x() - start.x())){
-        for(double j = start.y(); j < end.y(); j += (double)(end.y() - start.y()) / qAbs(end.y() - start.y())){
-            if(mainImage.pixelColor(qRound(i),qRound(j)) == Qt::yellow)
-                lineData.append(heatMatrixMap[qRound(j)].at(qRound(i)));
-            qDebug("alma");
+    for(int i = start.x(); i != end.x(); i += (end.x() - start.x()) / qAbs(end.x() - start.x())){
+        for(int j = start.y(); j != end.y(); j += (end.y() - start.y()) / qAbs(end.y() - start.y())){
+            if(mainImage.pixelColor(i, j) == Qt::yellow)
+                lineData.append(heatMatrixMap[j].at(i));
         }
     }
+    if(!lineData.isEmpty())
+        emit signalSendLineData(lineData);
 }
