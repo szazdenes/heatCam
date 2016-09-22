@@ -11,7 +11,6 @@
 #include <QToolTip>
 #include <QDebug>
 
-
 #include "temperaturedialog.h"
 
 namespace Ui {
@@ -30,6 +29,7 @@ signals:
     void signalXlsToCsv(QFile &file);
     void signalSendTminTmax(double min, double max);
     void signalSendPalette(int palette);
+    void signalHeatLineAdded();
 
 private slots:
     void on_loadPushButton_clicked();
@@ -48,6 +48,8 @@ private slots:
     void on_clearPushButton_clicked();
     void slotMouseMoved(QPointF pos);
     void slotMouseButtonPressed(QPointF pos);
+    void slotMouseButtonReleased(QPointF pos);
+    void slotGetDataFromHeatLine();
 
 private:
     Ui::VisualizationForm *ui;
@@ -62,6 +64,12 @@ private:
     int paletteNum;
     void rapidEvaluation();
     bool imageLoaded;
+    bool isButtonPressed, isButtonReleased;
+    QPoint start, end;
+    void refreshImageMask(QPoint startPoint, QPoint endPoint);
+    QImage mask;
+    QImage mainImage;
+    bool isHeatLineOn;
 };
 
 #endif // VISUALIZATIONFORM_H

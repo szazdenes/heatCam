@@ -24,6 +24,7 @@ public:
 
 signals:
     void signalLeftButtonPressed(QPointF pos);
+    void signalLeftButtonReleased(QPointF pos);
     void signalMouseMoved(QPointF pos);
 
 private:

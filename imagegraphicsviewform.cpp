@@ -16,7 +16,7 @@ ImageGraphicsviewForm::~ImageGraphicsviewForm()
 
 void ImageGraphicsviewForm::mousePressEvent(QMouseEvent *event)
 {
-    if((event->buttons() & Qt::LeftButton) != 0)
+    if(event->button() == Qt::LeftButton)
         emit signalLeftButtonPressed(mapToScene(event->pos()));
     else
         QGraphicsView::mousePressEvent(event);
@@ -24,7 +24,10 @@ void ImageGraphicsviewForm::mousePressEvent(QMouseEvent *event)
 
 void ImageGraphicsviewForm::mouseReleaseEvent(QMouseEvent *event)
 {
-
+    if(event->button() == Qt::LeftButton)
+        emit signalLeftButtonReleased(mapToScene(event->pos()));
+    else
+        QGraphicsView::mouseReleaseEvent(event);
 }
 
 void ImageGraphicsviewForm::mouseMoveEvent(QMouseEvent *event)

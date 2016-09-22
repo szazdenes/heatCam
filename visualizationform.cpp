@@ -9,6 +9,8 @@ VisualizationForm::VisualizationForm(QWidget *parent) :
     connect(this, &VisualizationForm::signalXlsToCsv, this, &VisualizationForm::slotXlsToCsv);
     connect(ui->graphicsView, &ImageGraphicsviewForm::signalMouseMoved, this, &VisualizationForm::slotMouseMoved);
     connect(ui->graphicsView, &ImageGraphicsviewForm::signalLeftButtonPressed, this, &VisualizationForm::slotMouseButtonPressed);
+    connect(ui->graphicsView, &ImageGraphicsviewForm::signalLeftButtonReleased, this, &VisualizationForm::slotMouseButtonReleased);
+    connect(this, &VisualizationForm::signalHeatLineAdded, this, &VisualizationForm::slotGetDataFromHeatLine);
 
     ui->graphicsView->setScene(&scene);
     ui->graphicsView->setTransformationAnchor(QGraphicsView::AnchorViewCenter);
@@ -17,6 +19,9 @@ VisualizationForm::VisualizationForm(QWidget *parent) :
     tmax = 60;
     paletteNum = 1;
     imageLoaded = false;
+    isButtonPressed = false;
+    isButtonReleased = false;
+    isHeatLineOn = false;
 
 //    rapidEvaluation();
 }
@@ -155,13 +160,13 @@ QColor VisualizationForm::getPixelColor(int palette, double temp, double tMin, d
             pixelColor = QColor(Qt::green);
         if(temp < tMin + (tMax-tMin)/2.0){
             if(temp < tMin || temp > tMax)
-                pixelColor = QColor(Qt::yellow);
+                pixelColor = QColor(Qt::magenta);
             else
                 pixelColor.setRgbF(0, (temp-tMin)/((tMax-tMin)/2.0), 1 - (temp-tMin)/((tMax-tMin)/2.0));
         }
         if(temp > tMin + (tMax-tMin)/2.0){
             if(temp < tMin || temp > tMax)
-                pixelColor = QColor(Qt::yellow);
+                pixelColor = QColor(Qt::magenta);
             else
                 pixelColor.setRgbF((temp-tMin)/((tMax-tMin)/2.0) - 1, 2 - (temp-tMin)/((tMax-tMin)/2.0), 0);
         }
@@ -171,7 +176,7 @@ QColor VisualizationForm::getPixelColor(int palette, double temp, double tMin, d
     if(palette == 2){
 
         if(temp < tMin || temp > tMax)
-            pixelColor = QColor(Qt::yellow);
+            pixelColor = QColor(Qt::magenta);
         else
             pixelColor.setRgbF(1 - (temp-tMin)/((tMax-tMin)), 1 - (temp-tMin)/((tMax-tMin)), 1 - (temp-tMin)/((tMax-tMin)));
     }
@@ -238,6 +243,29 @@ void VisualizationForm::rapidEvaluation()
     }
 }
 
+void VisualizationForm::refreshImageMask(QPoint startPoint, QPoint endPoint)
+{
+    mask = QImage(image->width(), image->height(), QImage::Format_ARGB32_Premultiplied);
+    mask.fill(Qt::transparent);
+    QPainter painter(&mask);
+    QPen pen;
+    pen.setColor(Qt::yellow);
+    pen.setWidth(1);
+    painter.setPen(pen);
+    painter.drawLine(startPoint, endPoint);
+    painter.end();
+
+
+    mainImage = QImage(image->width(), image->height(), QImage::Format_ARGB32_Premultiplied);
+    QPainter painter2(&mainImage);
+    painter2.drawImage(0, 0, *image);
+    painter2.drawImage(0, 0, mask);
+    painter2.end();
+    scene.clear();
+    scene.addPixmap(QPixmap::fromImage(mainImage));
+    isHeatLineOn = true;
+}
+
 void VisualizationForm::on_fiPushButton_clicked()
 {
     ui->graphicsView->scale(1.0/zoom, 1.0/zoom);
@@ -258,11 +286,21 @@ void VisualizationForm::on_origialPushButton_clicked()
 
 void VisualizationForm::on_savePushButton_clicked()
 {
-    QString saveName = heatFilenamecsv.remove(".csv");
-    if(paletteNum == 1)
-        image->save(saveName + "_col.png");
-    if(paletteNum == 2)
-        image->save(saveName + "_bw.png");
+    if(isHeatLineOn == false){
+        QString saveName = heatFilenamecsv.remove(".csv");
+        if(paletteNum == 1)
+            image->save(saveName + "_col.png");
+        if(paletteNum == 2)
+            image->save(saveName + "_bw.png");
+    }
+
+    if(isHeatLineOn == true){
+        QString saveName = heatFilenamecsv.remove(".csv");
+        if(paletteNum == 1)
+            mainImage.save(saveName + "_col_line.png");
+        if(paletteNum == 2)
+            mainImage.save(saveName + "_bw_line.png");
+    }
 }
 
 void VisualizationForm::on_tempPushButton_clicked()
@@ -302,6 +340,10 @@ void VisualizationForm::slotMouseMoved(QPointF pos)
         if(qRound(pos.x()) >= 0 && qRound(pos.y()) >=0 && qRound(pos.x()) <= image->width() && qRound(pos.y()) <= image->height()){
             if(!heatMatrixMap[qRound(pos.y())].isEmpty() && qRound(pos.y()) < heatMatrixMap.keys().size() && qRound(pos.x()) < heatMatrixMap[qRound(pos.y())].size()){
                 QToolTip::showText(QCursor::pos(), heatMatrixMap[qRound(pos.y())].at(qRound(pos.x())), ui->graphicsView);
+
+                if(isButtonPressed == true){
+                    refreshImageMask(start, QPoint(qRound(pos.x()), qRound(pos.y())));
+                }
             }
         }
     }
@@ -309,5 +351,27 @@ void VisualizationForm::slotMouseMoved(QPointF pos)
 
 void VisualizationForm::slotMouseButtonPressed(QPointF pos)
 {
-    qDebug() << QToolTip::text();
+    start = QPoint(qRound(pos.x()), qRound(pos.y()));
+    isButtonReleased = false;
+    isButtonPressed = true;
+}
+
+void VisualizationForm::slotMouseButtonReleased(QPointF pos)
+{
+    end = QPoint(qRound(pos.x()), qRound(pos.y()));
+    isButtonPressed = false;
+    isButtonReleased = true;
+    emit signalHeatLineAdded();
+}
+
+void VisualizationForm::slotGetDataFromHeatLine()
+{
+    QStringList lineData;
+    for(double i = start.x(); i < end.x(); i += (double)(end.x() - start.x()) / qAbs(end.x() - start.x())){
+        for(double j = start.y(); j < end.y(); j += (double)(end.y() - start.y()) / qAbs(end.y() - start.y())){
+            if(mainImage.pixelColor(qRound(i),qRound(j)) == Qt::yellow)
+                lineData.append(heatMatrixMap[qRound(j)].at(qRound(i)));
+            qDebug("alma");
+        }
+    }
 }
