@@ -23,20 +23,22 @@ void AnalyzationForm::slotLineData(QStringList lineData)
         count++;
     }
 
+    plotHeatLine(ui->plotWidget, dataPoints);
 
-    QwtPlotCurve curve;
-    QFont font;
-    font.setBold(true);
-    font.setPointSize(10);
+}
 
-    ui->plotWidget->detachItems();
-    ui->plotWidget->setAxisTitle(QwtPlot::xBottom, "Data points");
-    ui->plotWidget->setAxisTitle(QwtPlot::yLeft, "Temperature (°C)");
-    curve.setSamples(dataPoints);
-    curve.setPen(QPen(Qt::black, 1));
-    curve.attach(ui->plotWidget);
-    ui->plotWidget->axisAutoScale(QwtPlot::xBottom);
-    ui->plotWidget->axisAutoScale(QwtPlot::yLeft);
-    ui->plotWidget->setCanvasBackground(Qt::white);
-//    ui->plotWidget->replot();
+void AnalyzationForm::plotHeatLine(QwtPlot *plot, QVector<QPointF> &data)
+{
+    QwtPlotCurve *curve = new QwtPlotCurve();
+
+    plot->detachItems();
+    plot->setAxisTitle(QwtPlot::xBottom, "Data points");
+    plot->setAxisTitle(QwtPlot::yLeft, "Temperature (°C)");
+    plot->setCanvasBackground(Qt::white);
+    curve->setSamples(data);
+    curve->setPen(QPen(Qt::black, 1));
+    curve->attach(plot);
+    plot->axisAutoScale(QwtPlot::xBottom);
+    plot->axisAutoScale(QwtPlot::yLeft);
+    plot->replot();
 }

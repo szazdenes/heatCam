@@ -9,8 +9,6 @@ CONFIG += qwt
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-LIBS += qwt/build/lib/libqwt.a
-
 TARGET = HeatCam
 TEMPLATE = app
 DESTDIR = ./bin
@@ -19,6 +17,7 @@ MOC_DIR = ./moc
 RCC_DIR = ./rcc
 UI_DIR = ./ui
 
+LIBS += -L$$PWD/qwt/lib/ -lqwt
 
 SOURCES += main.cpp\
         mainwindow.cpp \
