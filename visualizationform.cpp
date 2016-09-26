@@ -17,7 +17,7 @@ VisualizationForm::VisualizationForm(QWidget *parent) :
     zoom = 1;
     tmin = 0;
     tmax = 60;
-    paletteNum = 1;
+    paletteNum = 2;
     imageLoaded = false;
     isButtonPressed = false;
     isButtonReleased = false;
@@ -367,10 +367,28 @@ void VisualizationForm::slotMouseButtonReleased(QPointF pos)
 void VisualizationForm::slotGetDataFromHeatLine()
 {
     QStringList lineData;
-    for(int i = start.x(); i != end.x(); i += (end.x() - start.x()) / qAbs(end.x() - start.x())){
-        for(int j = start.y(); j != end.y(); j += (end.y() - start.y()) / qAbs(end.y() - start.y())){
-            if(mainImage.pixelColor(i, j) == Qt::yellow)
-                lineData.append(heatMatrixMap[j].at(i));
+    if(start.x() != end.x() && start.y() != end.y()){
+        for(int i = start.x(); i != end.x(); i += (end.x() - start.x()) / qAbs(end.x() - start.x())){
+            for(int j = start.y(); j != end.y(); j += (end.y() - start.y()) / qAbs(end.y() - start.y())){
+                if(mainImage.pixelColor(i, j) == Qt::yellow)
+                    lineData.append(heatMatrixMap[j].at(i));
+            }
+        }
+    }
+    if(start.x() == end.x() && start.y() != end.y()){
+        for(int i = start.x()-2; i <= end.x()+2; i++){
+            for(int j = start.y(); j != end.y(); j += (end.y() - start.y()) / qAbs(end.y() - start.y())){
+                if(mainImage.pixelColor(i, j) == Qt::yellow)
+                    lineData.append(heatMatrixMap[j].at(i));
+            }
+        }
+    }
+    if(start.x() != end.x() && start.y() == end.y()){
+        for(int i = start.x(); i != end.x(); i += (end.x() - start.x()) / qAbs(end.x() - start.x())){
+            for(int j = start.y()-2; j <= end.y()+2; j++){
+                if(mainImage.pixelColor(i, j) == Qt::yellow)
+                    lineData.append(heatMatrixMap[j].at(i));
+            }
         }
     }
     if(!lineData.isEmpty())

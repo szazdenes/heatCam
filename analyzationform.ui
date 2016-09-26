@@ -19,12 +19,21 @@
      <property name="title">
       <string>Analization</string>
      </property>
-     <layout class="QGridLayout" name="gridLayout_3" rowstretch="1,2">
+     <layout class="QGridLayout" name="gridLayout_3" rowstretch="1,1,2">
       <item row="0" column="0">
        <widget class="QwtPlot" name="plotWidget" native="true"/>
       </item>
-      <item row="1" column="0">
+      <item row="2" column="0">
        <widget class="QTableWidget" name="tableWidget">
+        <property name="tabKeyNavigation">
+         <bool>false</bool>
+        </property>
+        <property name="showDropIndicator" stdset="0">
+         <bool>false</bool>
+        </property>
+        <property name="dragDropOverwriteMode">
+         <bool>false</bool>
+        </property>
         <property name="alternatingRowColors">
          <bool>false</bool>
         </property>
@@ -34,6 +43,69 @@
         <property name="horizontalScrollMode">
          <enum>QAbstractItemView::ScrollPerPixel</enum>
         </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QGroupBox" name="groupBox_2">
+        <property name="title">
+         <string>Range settings</string>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_4" rowstretch="0,1,0,1,1,0">
+         <item row="0" column="0">
+          <widget class="QLabel" name="label">
+           <property name="font">
+            <font>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>From</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QPushButton" name="minMaxPushButton">
+           <property name="text">
+            <string>Min-max search</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QSlider" name="fromHorizontalSlider">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QSlider" name="toHorizontalSlider">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_2">
+           <property name="font">
+            <font>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>To</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0">
+          <widget class="QPushButton" name="sendTablePushButton">
+           <property name="text">
+            <string>Send to table</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </widget>
       </item>
      </layout>
