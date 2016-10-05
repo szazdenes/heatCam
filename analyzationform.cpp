@@ -351,10 +351,24 @@ void AnalyzationForm::on_exportPlotpushButton_clicked()
     }
 
     QTextStream out(&exportPlotFile);
-    out << "#num" << "\t" << "temp" << "\t" << "smoothed temp" << "\t" << "kernel: " + QString::number(ui->kernelSpinBox->text().toDouble() * 2) << "\t" << "sigma: " + ui->sigmaSpinBox->text() << "\n";
+    out << "#num" << "\t" << "temp" << "\t" << "smoothed temp" << "\t" << "min" << "\t" << "max" << "\t" << "kernel: " + QString::number(ui->kernelSpinBox->text().toDouble() * 2) << "\t" << "sigma: " + ui->sigmaSpinBox->text() << "\n";
 
     for(int i = 0; i < dataPoints.size(); i++){
-        out << dataPoints.at(i).x() << "\t" << dataPoints.at(i).y() << "\t" << smoothedDataPoints.at(i).y() << "\n";
+        QString min = "";
+        QString max = "";
+        foreach(QPointF currentMin, minList){
+            if(currentMin.x() == smoothedDataPoints.at(i).x()){
+                min = QString::number(currentMin.y());
+                break;
+            }
+        }
+        foreach(QPointF currentMax, maxList){
+            if(currentMax.x() == smoothedDataPoints.at(i).x()){
+                max = QString::number(currentMax.y());
+                break;
+            }
+        }
+        out << dataPoints.at(i).x() << "\t" << dataPoints.at(i).y() << "\t" << smoothedDataPoints.at(i).y() << "\t" << min << "\t" << max << "\n";
     }
 
     exportPlotFile.close();
