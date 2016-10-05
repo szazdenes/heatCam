@@ -3,6 +3,8 @@
 
 #include <QWidget>
 #include <QtMath>
+#include <QTextStream>
+#include <QFileDialog>
 #include <qwt/src/qwt_plot.h>
 #include <qwt/src/qwt_plot_curve.h>
 #include <qwt/src/qwt_plot_marker.h>
@@ -38,16 +40,25 @@ private slots:
 
     void on_sigmaSpinBox_valueChanged(int arg1);
 
+    void on_exportPushButton_clicked();
+
+    void on_exportPlotpushButton_clicked();
+
 private:
     Ui::AnalyzationForm *ui;
     void plotHeatLine(QwtPlot *plot, QVector<QPointF> &data);
     void rangeSelection(int from, int to);
     void plotSelectedRange(QwtPlot *plot, QVector<QPointF> &data);
     void plotMinMax(QwtPlot *plot, QList<QPointF> &data);
-    QVector<QPointF> gaussianSmooth(QVector<QPointF> data, int half_kernel, double sigma);
+    double getAverage(QList<double> &list);
+    double getStD(QList<double> &list);
+    QPair<QPointF, QPointF> minMaxPosition(QList<QPointF> &dataList); //first: min, second: max
+    QVector<QPointF> gaussianSmooth(QVector<QPointF> &data, int half_kernel, double sigma);
+
     QVector<QPointF> dataPoints;
     QVector<QPointF> smoothedDataPoints;
-    QPair<QPointF, QPointF> minMaxPosition(QList<QPointF> &dataList); //first: min, second: max
+    QList<QPointF> minList, maxList;
+
 
 };
 

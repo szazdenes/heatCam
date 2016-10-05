@@ -52,25 +52,32 @@ private slots:
     void slotMouseButtonReleased(QPointF pos);
     void slotGetDataFromHeatLine();
 
+    void on_clearMaskPushButton_clicked();
+
 private:
     Ui::VisualizationForm *ui;
-    QMap<int, QStringList> heatMatrixMap;
+
     void drawHeatMap(QMap<int, QStringList> &heatMap);
+    QColor getPixelColor(int palette, double temp, double tMin, double tMax);
+    void refreshImageMask(QPoint startPoint, QPoint endPoint);
+    void refreshHeatlineMask();
+
+
+    QMap<int, QStringList> heatMatrixMap;
     QString heatFilenamecsv;
     QImage *image;
     QGraphicsScene scene;
     double zoom;
     double tmin, tmax;
-    QColor getPixelColor(int palette, double temp, double tMin, double tMax);
     int paletteNum;
     void rapidEvaluation();
     bool imageLoaded;
     bool isButtonPressed, isButtonReleased;
     QPoint start, end;
-    void refreshImageMask(QPoint startPoint, QPoint endPoint);
     QImage mask;
     QImage mainImage;
     bool isHeatLineOn;
+    QList<QPoint> startList, endList;
 };
 
 #endif // VISUALIZATIONFORM_H

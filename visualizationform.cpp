@@ -36,6 +36,9 @@ VisualizationForm::~VisualizationForm()
 void VisualizationForm::on_loadPushButton_clicked()
 {
     heatMatrixMap.clear();
+    startList.clear();
+    endList.clear();
+
     QFile heatFile(QFileDialog::getOpenFileName(this, "Open heat data", "../../", "*.xls"));
     if(!heatFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
         qDebug("baj");
@@ -266,6 +269,28 @@ void VisualizationForm::refreshImageMask(QPoint startPoint, QPoint endPoint)
     isHeatLineOn = true;
 }
 
+void VisualizationForm::refreshHeatlineMask()
+{
+    mask.fill(Qt::transparent);
+    QPainter painter(&mask);
+    QPen pen;
+    pen.setColor(Qt::yellow);
+    pen.setWidth(1);
+    painter.setPen(pen);
+    if(!startList.isEmpty() && !endList.isEmpty()){
+        for(int i = 0; i < startList.size(); i++)
+            painter.drawLine(startList.at(i), endList.at(i));
+    }
+    painter.end();
+
+    QPainter painter2(&mainImage);
+    painter2.drawImage(0, 0, *image);
+    painter2.drawImage(0, 0, mask);
+    painter2.end();
+    scene.clear();
+    scene.addPixmap(QPixmap::fromImage(mainImage));
+}
+
 void VisualizationForm::on_fiPushButton_clicked()
 {
     ui->graphicsView->scale(1.0/zoom, 1.0/zoom);
@@ -352,6 +377,7 @@ void VisualizationForm::slotMouseMoved(QPointF pos)
 void VisualizationForm::slotMouseButtonPressed(QPointF pos)
 {
     start = QPoint(qRound(pos.x()), qRound(pos.y()));
+    startList.append(start);
     isButtonReleased = false;
     isButtonPressed = true;
 }
@@ -359,9 +385,11 @@ void VisualizationForm::slotMouseButtonPressed(QPointF pos)
 void VisualizationForm::slotMouseButtonReleased(QPointF pos)
 {
     end = QPoint(qRound(pos.x()), qRound(pos.y()));
+    endList.append(end);
     isButtonPressed = false;
     isButtonReleased = true;
     emit signalHeatLineAdded();
+    refreshHeatlineMask();
 }
 
 void VisualizationForm::slotGetDataFromHeatLine()
@@ -393,4 +421,11 @@ void VisualizationForm::slotGetDataFromHeatLine()
     }
     if(!lineData.isEmpty())
         emit signalSendLineData(lineData);
+}
+
+void VisualizationForm::on_clearMaskPushButton_clicked()
+{
+    startList.clear();
+    endList.clear();
+    refreshHeatlineMask();
 }

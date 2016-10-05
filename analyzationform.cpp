@@ -6,8 +6,15 @@ AnalyzationForm::AnalyzationForm(QWidget *parent) :
     ui(new Ui::AnalyzationForm)
 {
     ui->setupUi(this);
+    ui->sendTablePushButton->setDisabled(true);
+    ui->exportPushButton->setDisabled(true);
+    ui->exportPlotpushButton->setDisabled(true);
+
     ui->kernelSpinBox->setValue(10);
     ui->sigmaSpinBox->setValue(5);
+
+    ui->tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->tableWidget->setHorizontalHeaderLabels(QStringList() << "Tmax (°C)" << "Tmin (°C)" << "delta T");
 
 }
 
@@ -106,7 +113,25 @@ void AnalyzationForm::plotMinMax(QwtPlot *plot, QList<QPointF> &data)
     }
 }
 
-QVector<QPointF> AnalyzationForm::gaussianSmooth(QVector<QPointF> data, int half_kernel, double sigma)
+double AnalyzationForm::getAverage(QList<double> &list)
+{
+    double result;
+    for (int i = 0; i < list.size(); i++)
+        result += (double)list.at(i) / (double)list.size();
+    return result;
+}
+
+double AnalyzationForm::getStD(QList<double> &list)
+{
+    double result;
+    double average = getAverage(list);
+    for (int i = 0; i < list.size(); i++)
+        result += (((double)list.at(i) - average)*((double)list.at(i) - average)) / (double)list.size();
+    result = qSqrt(result);
+    return result;
+}
+
+QVector<QPointF> AnalyzationForm::gaussianSmooth(QVector<QPointF> &data, int half_kernel, double sigma)
 {
     QVector<QPointF> smoothedData;
     double smoothed;
@@ -135,13 +160,13 @@ QPair<QPointF, QPointF> AnalyzationForm::minMaxPosition(QList<QPointF> &dataList
     QPair<QPointF, QPointF> minmax = QPair<QPointF, QPointF>(QPointF(0,0), QPointF(0,0));
     QList<double> tempList;
     double min, max;
-    int surroundings = 5;
+    int surroundings = 3;
 
     foreach(QPointF current, dataList)
         tempList.append(current.y());
 
     qSort(tempList);
-    if(qAbs(tempList.last()-tempList.first()) > 1){
+    if(qAbs(tempList.last()-tempList.first()) > 0.2){
         min = tempList.first();
         max = tempList.last();
         QList<QPointF> minList, maxList;
@@ -196,7 +221,7 @@ void AnalyzationForm::on_minMaxPushButton_clicked()
     int to = ui->toHorizontalSlider->value();
 
     QList<QPointF> rangeList;
-    QList<QPointF> minList, maxList;
+    minList.clear(); maxList.clear();
 
     for(int j = 0; j < smoothedDataPoints.size() - qAbs(to-from); j += 1){
         rangeList.clear();
@@ -211,7 +236,7 @@ void AnalyzationForm::on_minMaxPushButton_clicked()
     }
 
     /*remove points very close to each other*/
-    int diff = 10;
+    int diff = 5;
 
     for(int i = 0; i < minList.size()-1; i++){
         if(qAbs(minList.at(i).x() - minList.at(i+1).x()) < diff){
@@ -237,6 +262,9 @@ void AnalyzationForm::on_minMaxPushButton_clicked()
     minmaxList.append(minList);
     minmaxList.append(maxList);
     plotMinMax(ui->plotWidget, minmaxList);
+
+    ui->sendTablePushButton->setEnabled(true);
+    ui->exportPlotpushButton->setEnabled(true);
 }
 
 void AnalyzationForm::on_fromHorizontalSlider_valueChanged(int value)
@@ -253,6 +281,29 @@ void AnalyzationForm::on_toHorizontalSlider_valueChanged(int value)
 
 void AnalyzationForm::on_sendTablePushButton_clicked()
 {
+    while(ui->tableWidget->rowCount() != 0)
+        ui->tableWidget->removeRow(ui->tableWidget->rowCount()-1);
+
+    QList<double> deltaList;
+    for(int i = 0; i < qMin(minList.size(), maxList.size()); i++){
+        ui->tableWidget->insertRow(ui->tableWidget->rowCount());
+        ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 0, new QTableWidgetItem(QString::number(maxList.at(i).y())));
+        ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 1, new QTableWidgetItem(QString::number(minList.at(i).y())));
+        ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 2, new QTableWidgetItem(QString::number(qAbs(maxList.at(i).y() - minList.at(i).y()))));
+        deltaList.append(qAbs(maxList.at(i).y() - minList.at(i).y()));
+    }
+
+    ui->tableWidget->insertRow(ui->tableWidget->rowCount());
+    ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 0, new QTableWidgetItem(QString("Average")));
+    ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 1, new QTableWidgetItem(QString("")));
+    ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 2, new QTableWidgetItem(QString::number(getAverage(deltaList))));
+
+    ui->tableWidget->insertRow(ui->tableWidget->rowCount());
+    ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 0, new QTableWidgetItem(QString("StD")));
+    ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 1, new QTableWidgetItem(QString("")));
+    ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 2, new QTableWidgetItem(QString::number(getStD(deltaList))));
+
+    ui->exportPushButton->setEnabled(true);
 
 }
 
@@ -266,4 +317,45 @@ void AnalyzationForm::on_sigmaSpinBox_valueChanged(int arg1)
 {
     smoothedDataPoints = gaussianSmooth(dataPoints, ui->kernelSpinBox->value(), (double) arg1);
     rangeSelection(ui->fromHorizontalSlider->value(), ui->toHorizontalSlider->value());
+}
+
+void AnalyzationForm::on_exportPushButton_clicked()
+{
+    QFile exportFile(QFileDialog::getSaveFileName(this, "Save table data", "../../"));
+    if(!exportFile.fileName().endsWith("_table.csv"))
+        exportFile.setFileName(exportFile.fileName() + "_table.csv");
+    if(!exportFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        qDebug("baj");
+        return;
+    }
+
+    QTextStream out(&exportFile);
+    out << ui->tableWidget->horizontalHeaderItem(0)->text() << "\t" << ui->tableWidget->horizontalHeaderItem(1)->text() << "\t" << ui->tableWidget->horizontalHeaderItem(2)->text() << "\n";
+
+    for(int i = 0; i < ui->tableWidget->rowCount(); i++){
+        QString second = !ui->tableWidget->item(i, 1)->text().isEmpty() ? ui->tableWidget->item(i, 1)->text() : "";
+        out << ui->tableWidget->item(i, 0)->text() << "\t" << second << "\t" << ui->tableWidget->item(i, 2)->text() << "\n";
+    }
+
+    exportFile.close();
+}
+
+void AnalyzationForm::on_exportPlotpushButton_clicked()
+{
+    QFile exportPlotFile(QFileDialog::getSaveFileName(this, "Save plot data", "../../"));
+    if(!exportPlotFile.fileName().endsWith("_plot.csv"))
+        exportPlotFile.setFileName(exportPlotFile.fileName() + "_plot.csv");
+    if(!exportPlotFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        qDebug("baj");
+        return;
+    }
+
+    QTextStream out(&exportPlotFile);
+    out << "#num" << "\t" << "temp" << "\t" << "smoothed temp" << "\t" << "kernel: " + QString::number(ui->kernelSpinBox->text().toDouble() * 2) << "\t" << "sigma: " + ui->sigmaSpinBox->text() << "\n";
+
+    for(int i = 0; i < dataPoints.size(); i++){
+        out << dataPoints.at(i).x() << "\t" << dataPoints.at(i).y() << "\t" << smoothedDataPoints.at(i).y() << "\n";
+    }
+
+    exportPlotFile.close();
 }
