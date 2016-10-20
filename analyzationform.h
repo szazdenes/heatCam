@@ -24,7 +24,8 @@ public:
 
 public slots:
     void slotLineData(QStringList lineData);
-
+    void slotLineOn();
+    void slotLineOff();
 
 private slots:
     void on_minMaxPushButton_clicked();

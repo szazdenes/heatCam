@@ -31,6 +31,8 @@ signals:
     void signalSendPalette(int palette);
     void signalHeatLineAdded();
     void signalSendLineData(QStringList lineData);
+    void signalLineOff();
+    void signalLineOn();
 
 private slots:
     void on_loadPushButton_clicked();
@@ -53,6 +55,10 @@ private slots:
     void slotGetDataFromHeatLine();
 
     void on_clearMaskPushButton_clicked();
+
+    void on_lineCheckBox_toggled(bool checked);
+
+    void on_areaCheckBox_toggled(bool checked);
 
 private:
     Ui::VisualizationForm *ui;

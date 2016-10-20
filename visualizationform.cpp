@@ -23,6 +23,8 @@ VisualizationForm::VisualizationForm(QWidget *parent) :
     isButtonReleased = false;
     isHeatLineOn = false;
 
+    ui->lineCheckBox->setChecked(true);
+
 //    rapidEvaluation();
 }
 
@@ -428,4 +430,20 @@ void VisualizationForm::on_clearMaskPushButton_clicked()
     startList.clear();
     endList.clear();
     refreshHeatlineMask();
+}
+
+void VisualizationForm::on_lineCheckBox_toggled(bool checked)
+{
+    if(checked == false)
+        emit signalLineOff();
+    else{
+        emit signalLineOn();
+        ui->areaCheckBox->setChecked(false);
+    }
+}
+
+void VisualizationForm::on_areaCheckBox_toggled(bool checked)
+{
+    if(checked == true)
+        ui->lineCheckBox->setChecked(false);
 }

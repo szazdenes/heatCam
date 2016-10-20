@@ -7,6 +7,8 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     connect(ui->visualizeWidget, &VisualizationForm::signalSendLineData, ui->analyzewidget, &AnalyzationForm::slotLineData);
+    connect(ui->visualizeWidget, &VisualizationForm::signalLineOn, ui->analyzewidget, &AnalyzationForm::slotLineOn);
+    connect(ui->visualizeWidget, &VisualizationForm::signalLineOff, ui->analyzewidget, &AnalyzationForm::slotLineOff);
 }
 
 MainWindow::~MainWindow()

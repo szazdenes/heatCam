@@ -373,3 +373,28 @@ void AnalyzationForm::on_exportPlotpushButton_clicked()
 
     exportPlotFile.close();
 }
+
+void AnalyzationForm::slotLineOn()
+{
+    ui->minMaxPushButton->setEnabled(true);
+    ui->fromHorizontalSlider->setEnabled(true);
+    ui->toHorizontalSlider->setEnabled(true);
+    ui->kernelSpinBox->setEnabled(true);
+    ui->sigmaSpinBox->setEnabled(true);
+    ui->plotWidget->setEnabled(true);
+    ui->sendTablePushButton->setDisabled(true);
+    ui->exportPushButton->setDisabled(true);
+    ui->exportPlotpushButton->setDisabled(true);
+}
+
+void AnalyzationForm::slotLineOff()
+{
+    ui->minMaxPushButton->setDisabled(true);
+    ui->exportPlotpushButton->setDisabled(true);
+    ui->fromHorizontalSlider->setDisabled(true);
+    ui->toHorizontalSlider->setDisabled(true);
+    ui->kernelSpinBox->setDisabled(true);
+    ui->sigmaSpinBox->setDisabled(true);
+    ui->plotWidget->setDisabled(true);
+    ui->sendTablePushButton->setDisabled(true);
+}
