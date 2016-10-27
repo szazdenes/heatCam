@@ -549,7 +549,7 @@ void VisualizationForm::on_areaToTablePushButton_clicked()
             }
         }
         if(!areaData.isEmpty())
-            emit signalSendAreaData(areaData);
+            emit signalSendAreaData(areaData, QString(heatFilenamecsv).remove(".csv"));
     }
     else
         return;

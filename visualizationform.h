@@ -31,7 +31,7 @@ signals:
     void signalSendPalette(int palette);
     void signalHeatLineAdded();
     void signalSendLineData(QStringList lineData);
-    void signalSendAreaData(QStringList areaData);
+    void signalSendAreaData(QStringList areaData, QString filename);
     void signalLineOff();
     void signalLineOn();
 

@@ -43,7 +43,7 @@ void AnalyzationForm::slotLineData(QStringList lineData)
 
 }
 
-void AnalyzationForm::slotAreaData(QStringList areaData)
+void AnalyzationForm::slotAreaData(QStringList areaData, QString filename)
 {
     ui->tableWidget->setHorizontalHeaderLabels(QStringList() << "Filename" << "Average (°C)" << "StD (°C)");
 
@@ -53,6 +53,7 @@ void AnalyzationForm::slotAreaData(QStringList areaData)
     }
 
     ui->tableWidget->insertRow(ui->tableWidget->rowCount());
+    ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 0, new QTableWidgetItem(filename.split("/").last()));
     ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 1, new QTableWidgetItem(QString::number(getAverage(dataList))));
     ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 2, new QTableWidgetItem(QString::number(getStD(dataList))));
 

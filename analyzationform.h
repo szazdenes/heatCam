@@ -24,7 +24,7 @@ public:
 
 public slots:
     void slotLineData(QStringList lineData);
-    void slotAreaData(QStringList areaData);
+    void slotAreaData(QStringList areaData, QString filename);
     void slotLineOn();
     void slotLineOff();
 
