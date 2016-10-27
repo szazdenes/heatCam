@@ -10,6 +10,8 @@ VisualizationForm::VisualizationForm(QWidget *parent) :
     connect(ui->graphicsView, &ImageGraphicsviewForm::signalMouseMoved, this, &VisualizationForm::slotMouseMoved);
     connect(ui->graphicsView, &ImageGraphicsviewForm::signalLeftButtonPressed, this, &VisualizationForm::slotMouseButtonPressed);
     connect(ui->graphicsView, &ImageGraphicsviewForm::signalLeftButtonReleased, this, &VisualizationForm::slotMouseButtonReleased);
+    connect(ui->graphicsView, &ImageGraphicsviewForm::signalWheelUp, this, &VisualizationForm::slotWheelUp);
+    connect(ui->graphicsView, &ImageGraphicsviewForm::signalWheelDown, this, &VisualizationForm::slotWheelDown);
     connect(this, &VisualizationForm::signalHeatLineAdded, this, &VisualizationForm::slotGetDataFromHeatLine);
 
     ui->graphicsView->setScene(&scene);
@@ -18,6 +20,7 @@ VisualizationForm::VisualizationForm(QWidget *parent) :
     tmin = 0;
     tmax = 60;
     paletteNum = 2;
+    pensize = 50;
     imageLoaded = false;
     isButtonPressed = false;
     isButtonReleased = false;
@@ -80,6 +83,7 @@ void VisualizationForm::on_loadPushButton_clicked()
     }
 
     drawHeatMap(heatMatrixMap);
+    refreshAreaMask();
 
 }
 
@@ -293,6 +297,51 @@ void VisualizationForm::refreshHeatlineMask()
     scene.addPixmap(QPixmap::fromImage(mainImage));
 }
 
+void VisualizationForm::setCursorImage(double size)
+{
+    if(ui->areaCheckBox->isChecked()){
+        QImage cursorImage = QImage(size, size, QImage::Format_ARGB32);
+        QPainter cursorPainter(&cursorImage);
+        cursorPainter.setCompositionMode(QPainter::CompositionMode_Source);
+        cursorPainter.fillRect(cursorImage.rect(), Qt::transparent);
+        cursorPainter.setPen(Qt::yellow);
+        cursorPainter.drawEllipse(0, 0, size, size);
+        cursorPainter.end();
+        cursor = QCursor(QPixmap::fromImage(cursorImage));
+        ui->graphicsView->setCursor(cursor);
+    }
+    else
+        return;
+}
+
+void VisualizationForm::refreshAreaMask()
+{
+    mask = QImage(image->width(), image->height(), QImage::Format_ARGB32_Premultiplied);
+    mask.fill(Qt::transparent);
+}
+
+void VisualizationForm::paintMask(QPointF pos)
+{
+    QPainter painter(&mask);
+    QBrush brush;
+    brush.setColor(Qt::yellow);
+    brush.setStyle(Qt::SolidPattern);
+    painter.setCompositionMode(QPainter::CompositionMode_Source);
+    painter.setBrush(brush);
+    painter.setPen(Qt::NoPen);
+    painter.drawEllipse(pos.x() - pensize/2.0, pos.y() - pensize/2.0, pensize, pensize);
+    painter.end();
+
+    mainImage = QImage(image->width(), image->height(), QImage::Format_ARGB32_Premultiplied);
+    QPainter painter2(&mainImage);
+    painter2.drawImage(0, 0, *image);
+    painter2.setOpacity(0.5);
+    painter2.drawImage(0, 0, mask);
+    painter2.end();
+    scene.clear();
+    scene.addPixmap(QPixmap::fromImage(mainImage));
+}
+
 void VisualizationForm::on_fiPushButton_clicked()
 {
     ui->graphicsView->scale(1.0/zoom, 1.0/zoom);
@@ -358,6 +407,9 @@ void VisualizationForm::slotPalletteChanged(int palette)
 void VisualizationForm::on_clearPushButton_clicked()
 {
     heatMatrixMap.clear();
+    mask.fill(Qt::transparent);
+    image->fill(Qt::transparent);
+    mainImage.fill(Qt::transparent);
     scene.clear();
 }
 
@@ -367,31 +419,65 @@ void VisualizationForm::slotMouseMoved(QPointF pos)
         if(qRound(pos.x()) >= 0 && qRound(pos.y()) >=0 && qRound(pos.x()) <= image->width() && qRound(pos.y()) <= image->height()){
             if(!heatMatrixMap[qRound(pos.y())].isEmpty() && qRound(pos.y()) < heatMatrixMap.keys().size() && qRound(pos.x()) < heatMatrixMap[qRound(pos.y())].size()){
                 QToolTip::showText(QCursor::pos(), "T=" + heatMatrixMap[qRound(pos.y())].at(qRound(pos.x())) + " °C", ui->graphicsView);
+                if(ui->lineCheckBox->isChecked()){
+                    if(isButtonPressed == true){
+                        refreshImageMask(start, QPoint(qRound(pos.x()), qRound(pos.y())));
+                    }
+                }
+                if(ui->areaCheckBox->isChecked()){
+                    setCursorImage(pensize);
+                    if(isButtonPressed == true){
+                        paintMask(pos);
+                    }
 
-                if(isButtonPressed == true){
-                    refreshImageMask(start, QPoint(qRound(pos.x()), qRound(pos.y())));
                 }
             }
         }
+
     }
 }
 
 void VisualizationForm::slotMouseButtonPressed(QPointF pos)
 {
-    start = QPoint(qRound(pos.x()), qRound(pos.y()));
-    startList.append(start);
-    isButtonReleased = false;
-    isButtonPressed = true;
+    if(ui->lineCheckBox->isChecked()){
+        start = QPoint(qRound(pos.x()), qRound(pos.y()));
+        startList.append(start);
+        isButtonReleased = false;
+        isButtonPressed = true;
+    }
+
+    if(ui->areaCheckBox->isChecked()){
+        isButtonReleased = false;
+        isButtonPressed = true;
+    }
 }
 
 void VisualizationForm::slotMouseButtonReleased(QPointF pos)
 {
-    end = QPoint(qRound(pos.x()), qRound(pos.y()));
-    endList.append(end);
-    isButtonPressed = false;
-    isButtonReleased = true;
-    emit signalHeatLineAdded();
-    refreshHeatlineMask();
+    if(ui->lineCheckBox->isChecked()){
+        end = QPoint(qRound(pos.x()), qRound(pos.y()));
+        endList.append(end);
+        isButtonPressed = false;
+        isButtonReleased = true;
+        emit signalHeatLineAdded();
+        refreshHeatlineMask();
+    }
+    if(ui->areaCheckBox->isChecked()){
+        isButtonPressed = false;
+        isButtonReleased = true;
+    }
+}
+
+void VisualizationForm::slotWheelUp()
+{
+    pensize+=5;
+    setCursorImage(pensize);
+}
+
+void VisualizationForm::slotWheelDown()
+{
+    pensize-=5;
+    setCursorImage(pensize);
 }
 
 void VisualizationForm::slotGetDataFromHeatLine()
@@ -439,11 +525,32 @@ void VisualizationForm::on_lineCheckBox_toggled(bool checked)
     else{
         emit signalLineOn();
         ui->areaCheckBox->setChecked(false);
+        ui->graphicsView->setCursor(QCursor(Qt::ArrowCursor));
     }
 }
 
 void VisualizationForm::on_areaCheckBox_toggled(bool checked)
 {
-    if(checked == true)
+    if(checked == true){
         ui->lineCheckBox->setChecked(false);
+        refreshAreaMask();
+    }
+}
+
+void VisualizationForm::on_areaToTablePushButton_clicked()
+{
+    QStringList areaData;
+
+    if(ui->areaCheckBox->isChecked()){
+        for(int i = 0; i < mask.width(); i++){
+            for(int j = 0; j < mask.height(); j++){
+                if(mask.pixelColor(i, j) == Qt::yellow)
+                    areaData.append(heatMatrixMap[j].at(i));
+            }
+        }
+        if(!areaData.isEmpty())
+            emit signalSendAreaData(areaData);
+    }
+    else
+        return;
 }

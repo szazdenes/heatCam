@@ -31,6 +31,7 @@ signals:
     void signalSendPalette(int palette);
     void signalHeatLineAdded();
     void signalSendLineData(QStringList lineData);
+    void signalSendAreaData(QStringList areaData);
     void signalLineOff();
     void signalLineOn();
 
@@ -52,6 +53,8 @@ private slots:
     void slotMouseMoved(QPointF pos);
     void slotMouseButtonPressed(QPointF pos);
     void slotMouseButtonReleased(QPointF pos);
+    void slotWheelUp();
+    void slotWheelDown();
     void slotGetDataFromHeatLine();
 
     void on_clearMaskPushButton_clicked();
@@ -60,6 +63,8 @@ private slots:
 
     void on_areaCheckBox_toggled(bool checked);
 
+    void on_areaToTablePushButton_clicked();
+
 private:
     Ui::VisualizationForm *ui;
 
@@ -67,6 +72,9 @@ private:
     QColor getPixelColor(int palette, double temp, double tMin, double tMax);
     void refreshImageMask(QPoint startPoint, QPoint endPoint);
     void refreshHeatlineMask();
+    void setCursorImage(double size);
+    void refreshAreaMask();
+    void paintMask(QPointF pos);
 
 
     QMap<int, QStringList> heatMatrixMap;
@@ -84,6 +92,8 @@ private:
     QImage mainImage;
     bool isHeatLineOn;
     QList<QPoint> startList, endList;
+    QCursor cursor;
+    double pensize;
 };
 
 #endif // VISUALIZATIONFORM_H

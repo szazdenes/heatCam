@@ -43,6 +43,22 @@ void AnalyzationForm::slotLineData(QStringList lineData)
 
 }
 
+void AnalyzationForm::slotAreaData(QStringList areaData)
+{
+    ui->tableWidget->setHorizontalHeaderLabels(QStringList() << "Filename" << "Average (°C)" << "StD (°C)");
+
+    QList<double> dataList;
+    foreach(QString current, areaData){
+        dataList.append(current.toDouble());
+    }
+
+    ui->tableWidget->insertRow(ui->tableWidget->rowCount());
+    ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 1, new QTableWidgetItem(QString::number(getAverage(dataList))));
+    ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 2, new QTableWidgetItem(QString::number(getStD(dataList))));
+
+    ui->exportPushButton->setEnabled(true);
+}
+
 void AnalyzationForm::plotHeatLine(QwtPlot *plot, QVector<QPointF> &data)
 {
     QwtPlotCurve *curve1 = new QwtPlotCurve();
@@ -338,6 +354,9 @@ void AnalyzationForm::on_exportPushButton_clicked()
     }
 
     exportFile.close();
+
+    while(ui->tableWidget->rowCount() != 0)
+        ui->tableWidget->removeRow(ui->tableWidget->rowCount()-1);
 }
 
 void AnalyzationForm::on_exportPlotpushButton_clicked()

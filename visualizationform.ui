@@ -78,9 +78,6 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="0" colspan="5">
-       <widget class="ImageGraphicsviewForm" name="graphicsView"/>
-      </item>
       <item row="1" column="4">
        <widget class="QPushButton" name="tempPushButton">
         <property name="text">
@@ -94,6 +91,16 @@
          <string>Clear mask</string>
         </property>
        </widget>
+      </item>
+      <item row="1" column="5">
+       <widget class="QPushButton" name="areaToTablePushButton">
+        <property name="text">
+         <string>Area data to table</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0" colspan="6">
+       <widget class="ImageGraphicsviewForm" name="graphicsView"/>
       </item>
      </layout>
     </widget>

@@ -21,11 +21,14 @@ public:
     void mousePressEvent(QMouseEvent* event);
     void mouseReleaseEvent(QMouseEvent* event);
     void mouseMoveEvent(QMouseEvent *event);
+    void wheelEvent(QWheelEvent *event);
 
 signals:
     void signalLeftButtonPressed(QPointF pos);
     void signalLeftButtonReleased(QPointF pos);
     void signalMouseMoved(QPointF pos);
+    void signalWheelUp();
+    void signalWheelDown();
 
 private:
     Ui::ImageGraphicsviewForm *ui;
