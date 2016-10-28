@@ -329,7 +329,7 @@ void VisualizationForm::paintMask(QPointF pos)
     painter.setCompositionMode(QPainter::CompositionMode_Source);
     painter.setBrush(brush);
     painter.setPen(Qt::NoPen);
-    painter.drawEllipse(pos.x() - pensize/2.0, pos.y() - pensize/2.0, pensize, pensize);
+    painter.drawEllipse(pos.x() - pensize/zoom/2.0, pos.y() - pensize/zoom/2.0, pensize/zoom, pensize/zoom);
     painter.end();
 
     mainImage = QImage(image->width(), image->height(), QImage::Format_ARGB32_Premultiplied);
