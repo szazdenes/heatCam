@@ -25,6 +25,8 @@ AnalyzationForm::~AnalyzationForm()
 
 void AnalyzationForm::slotLineData(QStringList lineData)
 {
+    ui->tableWidget->setHorizontalHeaderLabels(QStringList() << "Tmax (°C)" << "Tmin (°C)" << "delta T");
+
     dataPoints.clear();
     smoothedDataPoints.clear();
     int count = 1;
