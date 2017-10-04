@@ -42,6 +42,11 @@ VisualizationForm::~VisualizationForm()
 
 void VisualizationForm::on_loadPushButton_clicked()
 {
+    if(imageLoaded == true){
+        delete image;
+        imageLoaded = false;
+    }
+
     heatMatrixMap.clear();
     startList.clear();
     endList.clear();
@@ -84,6 +89,8 @@ void VisualizationForm::on_loadPushButton_clicked()
         }
     }
 
+    ui->fileNameLabel->setText(heatFilenamecsv.split(".").first());
+
     drawHeatMap(heatMatrixMap);
     refreshAreaMask();
 
@@ -103,7 +110,6 @@ void VisualizationForm::slotXlsToCsv(QFile &file)
 void VisualizationForm::drawHeatMap(QMap<int, QStringList> &heatMap)
 {
     if(!heatMap.isEmpty()){
-        delete image;
         imageLoaded = false;
         int width = heatMap[heatMap.keys().first()].size();
         int height = heatMap.keys().size();

@@ -47,6 +47,9 @@ void AnalyzationForm::slotLineData(QStringList lineData)
 
 void AnalyzationForm::slotAreaData(QStringList areaData, QString filename)
 {
+    ui->tableWidget->clear();
+    while(ui->tableWidget->rowCount() > 0)
+        ui->tableWidget->removeRow(ui->tableWidget->rowCount()-1);
     ui->tableWidget->setHorizontalHeaderLabels(QStringList() << "Filename" << "Average (°C)" << "StD (°C)");
 
     QList<double> dataList;
@@ -303,26 +306,43 @@ void AnalyzationForm::on_sendTablePushButton_clicked()
     while(ui->tableWidget->rowCount() != 0)
         ui->tableWidget->removeRow(ui->tableWidget->rowCount()-1);
 
-    QList<double> deltaList;
-    for(int i = 0; i < qMin(minList.size(), maxList.size()); i++){
+    if(!dataPoints.isEmpty()){
+        QList<double> lineDataList;
+        foreach(QPointF current, dataPoints){
+            lineDataList.append(current.y());
+        }
+
+        QList<double> deltaList;
+        for(int i = 0; i < qMin(minList.size(), maxList.size()); i++){
+            ui->tableWidget->insertRow(ui->tableWidget->rowCount());
+            ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 0, new QTableWidgetItem(QString::number(maxList.at(i).y())));
+            ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 1, new QTableWidgetItem(QString::number(minList.at(i).y())));
+            ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 2, new QTableWidgetItem(QString::number(qAbs(maxList.at(i).y() - minList.at(i).y()))));
+            deltaList.append(qAbs(maxList.at(i).y() - minList.at(i).y()));
+        }
+
         ui->tableWidget->insertRow(ui->tableWidget->rowCount());
-        ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 0, new QTableWidgetItem(QString::number(maxList.at(i).y())));
-        ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 1, new QTableWidgetItem(QString::number(minList.at(i).y())));
-        ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 2, new QTableWidgetItem(QString::number(qAbs(maxList.at(i).y() - minList.at(i).y()))));
-        deltaList.append(qAbs(maxList.at(i).y() - minList.at(i).y()));
+        ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 0, new QTableWidgetItem(QString("Average")));
+        ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 1, new QTableWidgetItem(QString("")));
+        ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 2, new QTableWidgetItem(QString::number(getAverage(deltaList))));
+
+        ui->tableWidget->insertRow(ui->tableWidget->rowCount());
+        ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 0, new QTableWidgetItem(QString("StD")));
+        ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 1, new QTableWidgetItem(QString("")));
+        ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 2, new QTableWidgetItem(QString::number(getStD(deltaList))));
+
+        ui->tableWidget->insertRow(ui->tableWidget->rowCount());
+        ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 0, new QTableWidgetItem(QString("Line average")));
+        ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 1, new QTableWidgetItem(QString("")));
+        ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 2, new QTableWidgetItem(QString::number(getAverage(lineDataList))));
+
+        ui->tableWidget->insertRow(ui->tableWidget->rowCount());
+        ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 0, new QTableWidgetItem(QString("Line StD")));
+        ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 1, new QTableWidgetItem(QString("")));
+        ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 2, new QTableWidgetItem(QString::number(getStD(lineDataList))));
+
+        ui->exportPushButton->setEnabled(true);
     }
-
-    ui->tableWidget->insertRow(ui->tableWidget->rowCount());
-    ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 0, new QTableWidgetItem(QString("Average")));
-    ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 1, new QTableWidgetItem(QString("")));
-    ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 2, new QTableWidgetItem(QString::number(getAverage(deltaList))));
-
-    ui->tableWidget->insertRow(ui->tableWidget->rowCount());
-    ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 0, new QTableWidgetItem(QString("StD")));
-    ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 1, new QTableWidgetItem(QString("")));
-    ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 2, new QTableWidgetItem(QString::number(getStD(deltaList))));
-
-    ui->exportPushButton->setEnabled(true);
 
 }
 
