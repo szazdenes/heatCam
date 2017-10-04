@@ -6,6 +6,7 @@ VisualizationForm::VisualizationForm(QWidget *parent) :
     ui(new Ui::VisualizationForm)
 {
     ui->setupUi(this);
+
     connect(this, &VisualizationForm::signalXlsToCsv, this, &VisualizationForm::slotXlsToCsv);
     connect(ui->graphicsView, &ImageGraphicsviewForm::signalMouseMoved, this, &VisualizationForm::slotMouseMoved);
     connect(ui->graphicsView, &ImageGraphicsviewForm::signalLeftButtonPressed, this, &VisualizationForm::slotMouseButtonPressed);
@@ -33,7 +34,8 @@ VisualizationForm::VisualizationForm(QWidget *parent) :
 
 VisualizationForm::~VisualizationForm()
 {
-    delete image;
+    if(imageLoaded == true)
+        delete image;
     imageLoaded = false;
     delete ui;
 }
