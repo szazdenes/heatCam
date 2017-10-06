@@ -89,8 +89,7 @@ void VisualizationForm::on_loadPushButton_clicked()
         }
     }
 
-    ui->fileNameLabel->setText(heatFilenamecsv.split(".").first());
-
+    ui->fileNameLineEdit->setText(heatFilenamecsv.split(".").first());
     drawHeatMap(heatMatrixMap);
     refreshAreaMask();
 
