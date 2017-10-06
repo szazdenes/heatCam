@@ -28,6 +28,7 @@ VisualizationForm::VisualizationForm(QWidget *parent) :
     isHeatLineOn = false;
 
     ui->lineCheckBox->setChecked(true);
+    openFileName = "../../";
 
 //    rapidEvaluation();
 }
@@ -51,7 +52,10 @@ void VisualizationForm::on_loadPushButton_clicked()
     startList.clear();
     endList.clear();
 
-    QFile heatFile(QFileDialog::getOpenFileName(this, "Open heat data", "../../", "*.xls"));
+    openFileName = QFileDialog::getOpenFileName(this, "Open heat data", openFileName, "*.xls");
+    emit signalSendFilename(openFileName);
+
+    QFile heatFile(openFileName);
     if(!heatFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
         qDebug("baj");
         return;

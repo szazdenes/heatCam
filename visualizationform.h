@@ -34,6 +34,7 @@ signals:
     void signalSendAreaData(QStringList areaData, QString filename);
     void signalLineOff();
     void signalLineOn();
+    void signalSendFilename(QString fileName);
 
 private slots:
     void on_loadPushButton_clicked();
@@ -79,6 +80,7 @@ private:
 
     QMap<int, QStringList> heatMatrixMap;
     QString heatFilenamecsv;
+    QString openFileName;
     QImage *image;
     QGraphicsScene scene;
     double zoom;

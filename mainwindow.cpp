@@ -10,6 +10,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->visualizeWidget, &VisualizationForm::signalLineOn, ui->analyzewidget, &AnalyzationForm::slotLineOn);
     connect(ui->visualizeWidget, &VisualizationForm::signalLineOff, ui->analyzewidget, &AnalyzationForm::slotLineOff);
     connect(ui->visualizeWidget, &VisualizationForm::signalSendAreaData, ui->analyzewidget,  &AnalyzationForm::slotAreaData);
+    connect(ui->visualizeWidget, &VisualizationForm::signalSendFilename, ui->analyzewidget, &AnalyzationForm::slotFileName);
 }
 
 MainWindow::~MainWindow()

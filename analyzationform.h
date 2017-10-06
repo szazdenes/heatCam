@@ -27,6 +27,7 @@ public slots:
     void slotAreaData(QStringList areaData, QString filename);
     void slotLineOn();
     void slotLineOff();
+    void slotFileName(QString fileName);
 
 private slots:
     void on_minMaxPushButton_clicked();
@@ -60,6 +61,7 @@ private:
     QVector<QPointF> dataPoints;
     QVector<QPointF> smoothedDataPoints;
     QList<QPointF> minList, maxList;
+    QString openFileName;
 
 
 };

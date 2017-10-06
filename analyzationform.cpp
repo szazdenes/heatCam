@@ -360,7 +360,7 @@ void AnalyzationForm::on_sigmaSpinBox_valueChanged(int arg1)
 
 void AnalyzationForm::on_exportPushButton_clicked()
 {
-    QFile exportFile(QFileDialog::getSaveFileName(this, "Save table data", "../../"));
+    QFile exportFile(QFileDialog::getSaveFileName(this, "Save table data", openFileName));
     if(!exportFile.fileName().endsWith("_table.csv"))
         exportFile.setFileName(exportFile.fileName() + "_table.csv");
     if(!exportFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
@@ -384,7 +384,7 @@ void AnalyzationForm::on_exportPushButton_clicked()
 
 void AnalyzationForm::on_exportPlotpushButton_clicked()
 {
-    QFile exportPlotFile(QFileDialog::getSaveFileName(this, "Save plot data", "../../"));
+    QFile exportPlotFile(QFileDialog::getSaveFileName(this, "Save plot data", openFileName));
     if(!exportPlotFile.fileName().endsWith("_plot.csv"))
         exportPlotFile.setFileName(exportPlotFile.fileName() + "_plot.csv");
     if(!exportPlotFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
@@ -439,4 +439,9 @@ void AnalyzationForm::slotLineOff()
     ui->sigmaSpinBox->setDisabled(true);
     ui->plotWidget->setDisabled(true);
     ui->sendTablePushButton->setDisabled(true);
+}
+
+void AnalyzationForm::slotFileName(QString fileName)
+{
+    openFileName = fileName;
 }
