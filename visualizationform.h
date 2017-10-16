@@ -36,6 +36,9 @@ signals:
     void signalLineOn();
     void signalSendFilename(QString fileName);
 
+public slots:
+    void on_savePushButton_clicked();
+
 private slots:
     void on_loadPushButton_clicked();
     void slotXlsToCsv(QFile &file);
@@ -43,8 +46,6 @@ private slots:
     void on_fiPushButton_clicked();
 
     void on_origialPushButton_clicked();
-
-    void on_savePushButton_clicked();
 
     void on_tempPushButton_clicked();
     void slotTempMinMax(double min, double max);

@@ -11,6 +11,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->visualizeWidget, &VisualizationForm::signalLineOff, ui->analyzewidget, &AnalyzationForm::slotLineOff);
     connect(ui->visualizeWidget, &VisualizationForm::signalSendAreaData, ui->analyzewidget,  &AnalyzationForm::slotAreaData);
     connect(ui->visualizeWidget, &VisualizationForm::signalSendFilename, ui->analyzewidget, &AnalyzationForm::slotFileName);
+    connect(ui->analyzewidget, &AnalyzationForm::signalSaveHeatMap, ui->visualizeWidget, &VisualizationForm::on_savePushButton_clicked);
 }
 
 MainWindow::~MainWindow()

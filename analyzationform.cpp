@@ -9,6 +9,7 @@ AnalyzationForm::AnalyzationForm(QWidget *parent) :
     ui->sendTablePushButton->setDisabled(true);
     ui->exportPushButton->setDisabled(true);
     ui->exportPlotpushButton->setDisabled(true);
+    ui->exportAllPushButton->setDisabled(true);
 
     ui->kernelSpinBox->setValue(10);
     ui->sigmaSpinBox->setValue(5);
@@ -177,6 +178,64 @@ QVector<QPointF> AnalyzationForm::gaussianSmooth(QVector<QPointF> &data, int hal
     return smoothedData;
 }
 
+void AnalyzationForm::exportTableData(QString exportFilename)
+{
+    QFile exportFile(exportFilename);
+    if(!exportFile.fileName().endsWith("_table.csv"))
+        exportFile.setFileName(exportFile.fileName() + "_table.csv");
+    if(!exportFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        qDebug("baj");
+        return;
+    }
+
+    QTextStream out(&exportFile);
+    out << ui->tableWidget->horizontalHeaderItem(0)->text() << "\t" << ui->tableWidget->horizontalHeaderItem(1)->text() << "\t" << ui->tableWidget->horizontalHeaderItem(2)->text() << "\n";
+
+    for(int i = 0; i < ui->tableWidget->rowCount(); i++){
+        QString second = !ui->tableWidget->item(i, 1)->text().isEmpty() ? ui->tableWidget->item(i, 1)->text() : "";
+        out << ui->tableWidget->item(i, 0)->text() << "\t" << second << "\t" << ui->tableWidget->item(i, 2)->text() << "\n";
+    }
+
+    exportFile.close();
+
+    while(ui->tableWidget->rowCount() != 0)
+        ui->tableWidget->removeRow(ui->tableWidget->rowCount()-1);
+}
+
+void AnalyzationForm::exportPlotData(QString exportFilename)
+{
+    QFile exportPlotFile(exportFilename);
+    if(!exportPlotFile.fileName().endsWith("_plot.csv"))
+        exportPlotFile.setFileName(exportPlotFile.fileName() + "_plot.csv");
+    if(!exportPlotFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        qDebug("baj");
+        return;
+    }
+
+    QTextStream out(&exportPlotFile);
+    out << "#num" << "\t" << "temp" << "\t" << "smoothed temp" << "\t" << "min" << "\t" << "max" << "\t" << "kernel: " + QString::number(ui->kernelSpinBox->text().toDouble() * 2) << "\t" << "sigma: " + ui->sigmaSpinBox->text() << "\n";
+
+    for(int i = 0; i < dataPoints.size(); i++){
+        QString min = "";
+        QString max = "";
+        foreach(QPointF currentMin, minList){
+            if(currentMin.x() == smoothedDataPoints.at(i).x()){
+                min = QString::number(currentMin.y());
+                break;
+            }
+        }
+        foreach(QPointF currentMax, maxList){
+            if(currentMax.x() == smoothedDataPoints.at(i).x()){
+                max = QString::number(currentMax.y());
+                break;
+            }
+        }
+        out << dataPoints.at(i).x() << "\t" << dataPoints.at(i).y() << "\t" << smoothedDataPoints.at(i).y() << "\t" << min << "\t" << max << "\n";
+    }
+
+    exportPlotFile.close();
+}
+
 QPair<QPointF, QPointF> AnalyzationForm::minMaxPosition(QList<QPointF> &dataList)
 {
     QPair<QPointF, QPointF> minmax = QPair<QPointF, QPointF>(QPointF(0,0), QPointF(0,0));
@@ -342,6 +401,7 @@ void AnalyzationForm::on_sendTablePushButton_clicked()
         ui->tableWidget->setItem(ui->tableWidget->rowCount()-1, 2, new QTableWidgetItem(QString::number(getStD(lineDataList))));
 
         ui->exportPushButton->setEnabled(true);
+        ui->exportAllPushButton->setEnabled(true);
     }
 
 }
@@ -360,60 +420,14 @@ void AnalyzationForm::on_sigmaSpinBox_valueChanged(int arg1)
 
 void AnalyzationForm::on_exportPushButton_clicked()
 {
-    QFile exportFile(QFileDialog::getSaveFileName(this, "Save table data", openFileName));
-    if(!exportFile.fileName().endsWith("_table.csv"))
-        exportFile.setFileName(exportFile.fileName() + "_table.csv");
-    if(!exportFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        qDebug("baj");
-        return;
-    }
-
-    QTextStream out(&exportFile);
-    out << ui->tableWidget->horizontalHeaderItem(0)->text() << "\t" << ui->tableWidget->horizontalHeaderItem(1)->text() << "\t" << ui->tableWidget->horizontalHeaderItem(2)->text() << "\n";
-
-    for(int i = 0; i < ui->tableWidget->rowCount(); i++){
-        QString second = !ui->tableWidget->item(i, 1)->text().isEmpty() ? ui->tableWidget->item(i, 1)->text() : "";
-        out << ui->tableWidget->item(i, 0)->text() << "\t" << second << "\t" << ui->tableWidget->item(i, 2)->text() << "\n";
-    }
-
-    exportFile.close();
-
-    while(ui->tableWidget->rowCount() != 0)
-        ui->tableWidget->removeRow(ui->tableWidget->rowCount()-1);
+    QString exportFilename = QFileDialog::getSaveFileName(this, "Save table data", openFileName);
+    exportTableData(exportFilename);
 }
 
 void AnalyzationForm::on_exportPlotpushButton_clicked()
 {
-    QFile exportPlotFile(QFileDialog::getSaveFileName(this, "Save plot data", openFileName));
-    if(!exportPlotFile.fileName().endsWith("_plot.csv"))
-        exportPlotFile.setFileName(exportPlotFile.fileName() + "_plot.csv");
-    if(!exportPlotFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        qDebug("baj");
-        return;
-    }
-
-    QTextStream out(&exportPlotFile);
-    out << "#num" << "\t" << "temp" << "\t" << "smoothed temp" << "\t" << "min" << "\t" << "max" << "\t" << "kernel: " + QString::number(ui->kernelSpinBox->text().toDouble() * 2) << "\t" << "sigma: " + ui->sigmaSpinBox->text() << "\n";
-
-    for(int i = 0; i < dataPoints.size(); i++){
-        QString min = "";
-        QString max = "";
-        foreach(QPointF currentMin, minList){
-            if(currentMin.x() == smoothedDataPoints.at(i).x()){
-                min = QString::number(currentMin.y());
-                break;
-            }
-        }
-        foreach(QPointF currentMax, maxList){
-            if(currentMax.x() == smoothedDataPoints.at(i).x()){
-                max = QString::number(currentMax.y());
-                break;
-            }
-        }
-        out << dataPoints.at(i).x() << "\t" << dataPoints.at(i).y() << "\t" << smoothedDataPoints.at(i).y() << "\t" << min << "\t" << max << "\n";
-    }
-
-    exportPlotFile.close();
+    QString exportPlotFilename = QFileDialog::getSaveFileName(this, "Save plot data", openFileName);
+    exportPlotData(exportPlotFilename);
 }
 
 void AnalyzationForm::slotLineOn()
@@ -427,6 +441,7 @@ void AnalyzationForm::slotLineOn()
     ui->sendTablePushButton->setDisabled(true);
     ui->exportPushButton->setDisabled(true);
     ui->exportPlotpushButton->setDisabled(true);
+    ui->exportAllPushButton->setDisabled(true);
 }
 
 void AnalyzationForm::slotLineOff()
@@ -444,4 +459,13 @@ void AnalyzationForm::slotLineOff()
 void AnalyzationForm::slotFileName(QString fileName)
 {
     openFileName = fileName;
+}
+
+void AnalyzationForm::on_exportAllPushButton_clicked()
+{
+    QString exportAllFilename = QFileDialog::getSaveFileName(this, "Save plot data", openFileName);
+    exportPlotData(exportAllFilename);
+    exportTableData(exportAllFilename);
+    emit signalSaveHeatMap();
+
 }

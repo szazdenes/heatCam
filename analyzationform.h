@@ -22,6 +22,9 @@ public:
     explicit AnalyzationForm(QWidget *parent = 0);
     ~AnalyzationForm();
 
+signals:
+    void signalSaveHeatMap();
+
 public slots:
     void slotLineData(QStringList lineData);
     void slotAreaData(QStringList areaData, QString filename);
@@ -47,6 +50,8 @@ private slots:
 
     void on_exportPlotpushButton_clicked();
 
+    void on_exportAllPushButton_clicked();
+
 private:
     Ui::AnalyzationForm *ui;
     void plotHeatLine(QwtPlot *plot, QVector<QPointF> &data);
@@ -57,6 +62,8 @@ private:
     double getStD(QList<double> &list);
     QPair<QPointF, QPointF> minMaxPosition(QList<QPointF> &dataList); //first: min, second: max
     QVector<QPointF> gaussianSmooth(QVector<QPointF> &data, int half_kernel, double sigma);
+    void exportTableData(QString exportFilename);
+    void exportPlotData(QString exportFilename);
 
     QVector<QPointF> dataPoints;
     QVector<QPointF> smoothedDataPoints;
