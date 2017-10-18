@@ -118,6 +118,12 @@
          </item>
          <item row="1" column="0">
           <widget class="QSpinBox" name="kernelSpinBox">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
+           </property>
            <property name="accelerated">
             <bool>true</bool>
            </property>

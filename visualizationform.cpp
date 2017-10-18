@@ -494,27 +494,32 @@ void VisualizationForm::slotWheelDown()
 void VisualizationForm::slotGetDataFromHeatLine()
 {
     QStringList lineData;
-    if(start.x() != end.x() && start.y() != end.y()){
-        for(int i = start.x(); i != end.x(); i += (end.x() - start.x()) / qAbs(end.x() - start.x())){
-            for(int j = start.y(); j != end.y(); j += (end.y() - start.y()) / qAbs(end.y() - start.y())){
+    if(start != end){
+        int minX = qMin(start.x(), end.x());
+        int maxX = qMax(start.x(), end.x());
+        int minY = qMin(start.y(), end.y());
+        int maxY = qMax(start.y(), end.y());
+
+        if(minX == maxX && minY != maxY){
+            int i = minX;
+            for(int j = minY; j <= maxY; j++){
                 if(mainImage.pixelColor(i, j) == Qt::yellow)
                     lineData.append(heatMatrixMap[j].at(i));
             }
         }
-    }
-    if(start.x() == end.x() && start.y() != end.y()){
-        for(int i = start.x()-2; i <= end.x()+2; i++){
-            for(int j = start.y(); j != end.y(); j += (end.y() - start.y()) / qAbs(end.y() - start.y())){
+        else if(minX != maxX && minY == maxY){
+            int j = minY;
+            for(int i = minX; i <= maxX; i++){
                 if(mainImage.pixelColor(i, j) == Qt::yellow)
                     lineData.append(heatMatrixMap[j].at(i));
             }
         }
-    }
-    if(start.x() != end.x() && start.y() == end.y()){
-        for(int i = start.x(); i != end.x(); i += (end.x() - start.x()) / qAbs(end.x() - start.x())){
-            for(int j = start.y()-2; j <= end.y()+2; j++){
-                if(mainImage.pixelColor(i, j) == Qt::yellow)
-                    lineData.append(heatMatrixMap[j].at(i));
+        else{
+            for(int i = minX; i <= maxX; i++){
+                for(int j = minY; j <= maxY; j++){
+                    if(mainImage.pixelColor(i, j) == Qt::yellow)
+                        lineData.append(heatMatrixMap[j].at(i));
+                }
             }
         }
     }
