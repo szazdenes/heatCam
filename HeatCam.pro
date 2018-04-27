@@ -36,15 +36,11 @@ FORMS    += mainwindow.ui \
     temperaturedialog.ui \
     analyzationform.ui
 
+
+
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/qwt/lib/release/ -lqwt
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/qwt/lib/debug/ -lqwt
 else:unix: LIBS += -L$$PWD/qwt/lib/ -lqwt
 
 INCLUDEPATH += $$PWD/qwt
 DEPENDPATH += $$PWD/qwt
-
-win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/qwt/lib/release/libqwt.a
-else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/qwt/lib/debug/libqwt.a
-else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$PWD/qwt/lib/release/qwt.lib
-else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$PWD/qwt/lib/debug/qwt.lib
-else:unix: PRE_TARGETDEPS += $$PWD/qwt/lib/libqwt.a

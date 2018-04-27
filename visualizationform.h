@@ -29,7 +29,6 @@ signals:
     void signalXlsToCsv(QFile &file);
     void signalSendTminTmax(double min, double max);
     void signalSendPalette(int palette);
-    void signalHeatLineAdded();
     void signalSendLineData(QStringList lineData);
     void signalSendAreaData(QStringList areaData, QString filename);
     void signalLineOff();
@@ -57,7 +56,7 @@ private slots:
     void slotMouseButtonReleased(QPointF pos);
     void slotWheelUp();
     void slotWheelDown();
-    void slotGetDataFromHeatLine();
+    void getDataFromHeatLine();
 
     void on_clearMaskPushButton_clicked();
 
@@ -72,17 +71,17 @@ private:
 
     void drawHeatMap(QMap<int, QStringList> &heatMap);
     QColor getPixelColor(int palette, double temp, double tMin, double tMax);
-    void refreshImageMask(QPoint startPoint, QPoint endPoint);
-    void refreshHeatlineMask();
+    void refreshImageMask();
+    void refreshHeatlineMask(QPoint startPos, QPoint endPos);
     void setCursorImage(double size);
-    void refreshAreaMask();
+    void refreshMask();
     void paintMask(QPointF pos);
 
 
     QMap<int, QStringList> heatMatrixMap;
     QString heatFilenamecsv;
     QString openFileName;
-    QImage *image;
+    QImage image;
     QGraphicsScene scene;
     double zoom;
     double tmin, tmax;
@@ -94,7 +93,6 @@ private:
     QImage mask;
     QImage mainImage;
     bool isHeatLineOn;
-    QList<QPoint> startList, endList;
     QCursor cursor;
     double pensize;
 };
