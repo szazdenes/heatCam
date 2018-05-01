@@ -92,6 +92,7 @@ private:
     QPoint start, end;
     QImage mask;
     QImage mainImage;
+    QImage maskedImage;
     bool isHeatLineOn;
     QCursor cursor;
     double pensize;

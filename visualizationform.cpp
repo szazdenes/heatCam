@@ -113,6 +113,7 @@ void VisualizationForm::drawHeatMap(QMap<int, QStringList> &heatMap)
         image.fill(Qt::white);
         mask = QImage(image.width(), image.height(), QImage::Format_ARGB32_Premultiplied);
         mainImage = QImage(image.width(), image.height(), QImage::Format_ARGB32_Premultiplied);
+        maskedImage = image;
 
         for(int w = 0; w < width; w++){
             for(int h = 0; h < height; h++){
@@ -263,10 +264,10 @@ void VisualizationForm::rapidEvaluation()
 void VisualizationForm::refreshImageMask()
 {
     QPainter painter(&mainImage);
-    QPainter painter2(&image);
+    QPainter painter2(&maskedImage);
 
     if(isButtonPressed){
-        painter.drawImage(0, 0, image);
+        painter.drawImage(0, 0, maskedImage);
         painter.drawImage(0, 0, mask);
         painter.end();
         scene.clear();
@@ -277,9 +278,13 @@ void VisualizationForm::refreshImageMask()
         painter2.end();
         scene.clear();
         scene.addPixmap(QPixmap::fromImage(mainImage));
+//        mainImage.save("main.png");
+//        image.save("im.png");
+//        mask.save("mask.png");
+//        maskedImage.save("maskedimage.png");
     }
 
-//    isHeatLineOn = true;
+    isHeatLineOn = true;
 }
 
 void VisualizationForm::refreshHeatlineMask(QPoint startPos, QPoint endPos)
@@ -508,6 +513,9 @@ void VisualizationForm::getDataFromHeatLine()
     }
     if(!lineData.isEmpty())
         emit signalSendLineData(lineData);
+
+//    foreach(QString data, lineData)
+//        qDebug() << data;
 }
 
 void VisualizationForm::on_clearMaskPushButton_clicked()
@@ -515,6 +523,9 @@ void VisualizationForm::on_clearMaskPushButton_clicked()
     refreshMask();
     mainImage = image;
     refreshImageMask();
+//    mainImage.save("main.png");
+//    image.save("im.png");
+//    mask.save("mask.png");
 //    qDebug("alma");
 }
 
