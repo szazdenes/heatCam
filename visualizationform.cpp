@@ -1,4 +1,4 @@
-#include "visualizationform.h"
+ #include "visualizationform.h"
 #include "ui_visualizationform.h"
 
 VisualizationForm::VisualizationForm(QWidget *parent) :
@@ -113,7 +113,6 @@ void VisualizationForm::drawHeatMap(QMap<int, QStringList> &heatMap)
         image.fill(Qt::white);
         mask = QImage(image.width(), image.height(), QImage::Format_ARGB32_Premultiplied);
         mainImage = QImage(image.width(), image.height(), QImage::Format_ARGB32_Premultiplied);
-        maskedImage = image;
 
         for(int w = 0; w < width; w++){
             for(int h = 0; h < height; h++){
@@ -158,6 +157,7 @@ void VisualizationForm::drawHeatMap(QMap<int, QStringList> &heatMap)
         painter.drawLine(width+15, height-1, width+35, height-1);
 
         mainImage = image;
+        maskedImage = image;
         scene.clear();
         scene.addPixmap(QPixmap::fromImage(mainImage));
     }
@@ -278,10 +278,6 @@ void VisualizationForm::refreshImageMask()
         painter2.end();
         scene.clear();
         scene.addPixmap(QPixmap::fromImage(mainImage));
-//        mainImage.save("main.png");
-//        image.save("im.png");
-//        mask.save("mask.png");
-//        maskedImage.save("maskedimage.png");
     }
 
     isHeatLineOn = true;
@@ -460,7 +456,6 @@ void VisualizationForm::slotMouseButtonReleased(QPointF pos)
         refreshHeatlineMask(start, QPoint(qRound(pos.x()), qRound(pos.y())));
         refreshImageMask();
         getDataFromHeatLine();
-//        refreshHeatlineMask(start, end);
     }
     if(ui->areaCheckBox->isChecked()){
         isButtonPressed = false;
@@ -523,10 +518,6 @@ void VisualizationForm::on_clearMaskPushButton_clicked()
     refreshMask();
     mainImage = image;
     refreshImageMask();
-//    mainImage.save("main.png");
-//    image.save("im.png");
-//    mask.save("mask.png");
-//    qDebug("alma");
 }
 
 void VisualizationForm::on_lineCheckBox_toggled(bool checked)
