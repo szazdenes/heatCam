@@ -138,7 +138,7 @@ void AnalyzationForm::plotMinMax(QwtPlot *plot, QList<QPointF> &data)
 
 double AnalyzationForm::getAverage(QList<double> &list)
 {
-    double result;
+    double result = 0;
     for (int i = 0; i < list.size(); i++)
         result += (double)list.at(i) / (double)list.size();
     return result;
@@ -146,7 +146,7 @@ double AnalyzationForm::getAverage(QList<double> &list)
 
 double AnalyzationForm::getStD(QList<double> &list)
 {
-    double result;
+    double result = 0;
     double average = getAverage(list);
     for (int i = 0; i < list.size(); i++)
         result += (((double)list.at(i) - average)*((double)list.at(i) - average)) / (double)list.size();
