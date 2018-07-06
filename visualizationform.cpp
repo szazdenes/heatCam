@@ -78,10 +78,19 @@ void VisualizationForm::on_loadPushButton_clicked()
 
     while(!read.atEnd()){
         line = read.readLine();
+        line.replace("\",", "\".");
+        line.replace(",\"", ".\"");
+        line.remove("\"");
 
         if(line.startsWith("0") || line.startsWith("1") || line.startsWith("2") || line.startsWith("3") || line.startsWith("4") || line.startsWith("5") || line.startsWith("6") || line.startsWith("7") || line.startsWith("8") || line.startsWith("9")){
-            QStringList lineData = QString(line).split(",");
-            heatMatrixMap[count] = lineData;
+            QStringList lineData = QString(line).split(".");
+            QStringList lineDataCorrected;
+
+            foreach(QString current, lineData){
+                current.replace(",", ".");
+                lineDataCorrected.append(current);
+            }
+            heatMatrixMap[count] = lineDataCorrected;
             count++;
         }
     }
@@ -97,7 +106,7 @@ void VisualizationForm::slotXlsToCsv(QFile &file)
     QProcess proc;
     QString filename = file.fileName();
     QString dir = QString(filename).remove(filename.split("/").last());
-    QString cmd("libreoffice --headless --convert-to csv " + filename + " --outdir " + dir);
+    QString cmd("\"C:/Program Files (x86)/LibreOffice 5/program/soffice.exe\" --headless --convert-to csv " + filename + " --outdir " + dir);
     proc.execute(cmd);
     proc.waitForFinished();
     proc.close();
@@ -107,7 +116,7 @@ void VisualizationForm::drawHeatMap(QMap<int, QStringList> &heatMap)
 {
     if(!heatMap.isEmpty()){
         imageLoaded = false;
-        int width = heatMap[heatMap.keys().first()].size();
+        int width = heatMap[heatMap.keys().first()].size()-5;
         int height = heatMap.keys().size();
         image = QImage(width+60, height+5, QImage::Format_ARGB32_Premultiplied);
         image.fill(Qt::white);
