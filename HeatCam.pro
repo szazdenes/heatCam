@@ -38,9 +38,8 @@ FORMS    += mainwindow.ui \
 
 
 
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/qwt/lib/release/ -lqwt
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/qwt/lib/debug/ -lqwt
-else:unix: LIBS += -L$$PWD/qwt/lib/ -lqwt
 
-INCLUDEPATH += $$PWD/qwt
-DEPENDPATH += $$PWD/qwt
+unix:!macx: LIBS += -L$$PWD/../../qwt-6.1/lib/ -lqwt
+
+INCLUDEPATH += $$PWD/../../qwt-6.1
+DEPENDPATH += $$PWD/../../qwt-6.1
