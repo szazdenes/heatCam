@@ -12,6 +12,7 @@
 #include <QDebug>
 
 #include "temperaturedialog.h"
+#include "heatmapdialog.h"
 
 namespace Ui {
 class VisualizationForm;
@@ -34,6 +35,7 @@ signals:
     void signalLineOff();
     void signalLineOn();
     void signalSendFilename(QString fileName);
+    void signalSendHeatImage(QString heatImageName);
 
 public slots:
     void on_savePushButton_clicked();
@@ -66,6 +68,8 @@ private slots:
 
     void on_areaToTablePushButton_clicked();
 
+    void on_openHeatImagePushButton_clicked();
+
 private:
     Ui::VisualizationForm *ui;
 
@@ -81,6 +85,7 @@ private:
     QMap<int, QStringList> heatMatrixMap;
     QString heatFilenamecsv;
     QString openFileName;
+    QString openImageName;
     QImage image;
     QGraphicsScene scene;
     double zoom;

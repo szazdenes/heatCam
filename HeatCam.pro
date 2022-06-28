@@ -18,6 +18,7 @@ RCC_DIR = ./rcc
 UI_DIR = ./ui
 
 SOURCES += main.cpp\
+    heatmapdialog.cpp \
         mainwindow.cpp \
     visualizationform.cpp \
     imagegraphicsviewform.cpp \
@@ -25,12 +26,14 @@ SOURCES += main.cpp\
     analyzationform.cpp
 
 HEADERS  += mainwindow.h \
+    heatmapdialog.h \
     visualizationform.h \
     imagegraphicsviewform.h \
     temperaturedialog.h \
     analyzationform.h
 
 FORMS    += mainwindow.ui \
+    heatmapdialog.ui \
     visualizationform.ui \
     imagegraphicsviewform.ui \
     temperaturedialog.ui \

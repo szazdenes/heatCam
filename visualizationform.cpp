@@ -1,4 +1,4 @@
- #include "visualizationform.h"
+#include "visualizationform.h"
 #include "ui_visualizationform.h"
 
 VisualizationForm::VisualizationForm(QWidget *parent) :
@@ -27,6 +27,7 @@ VisualizationForm::VisualizationForm(QWidget *parent) :
 
     ui->lineCheckBox->setChecked(true);
     openFileName = "../../";
+    openImageName = "../../";
 
 //    rapidEvaluation();
 }
@@ -45,7 +46,7 @@ void VisualizationForm::on_loadPushButton_clicked()
 
     heatMatrixMap.clear();
 
-    openFileName = QFileDialog::getOpenFileName(this, "Open heat data", openFileName, "*.xls");
+    openFileName = QFileDialog::getOpenFileName(this, "Open heat data", openFileName, "*.xls, *.csv");
     emit signalSendFilename(openFileName);
 
     QFile heatFile(openFileName);
@@ -64,6 +65,8 @@ void VisualizationForm::on_loadPushButton_clicked()
         else
             return;
     }
+    if(heatFile.fileName().endsWith(".csv"))
+        heatFilecsv.setFileName(heatFile.fileName());
 
     heatFile.close();
 
@@ -557,3 +560,14 @@ void VisualizationForm::on_areaToTablePushButton_clicked()
     else
         return;
 }
+
+void VisualizationForm::on_openHeatImagePushButton_clicked()
+{
+    openImageName = QFileDialog::getOpenFileName(this, "Open heat image", openFileName, "*.jpg");
+
+    HeatMapDialog heat;
+    connect(this, &VisualizationForm::signalSendHeatImage, &heat, &HeatMapDialog::slotShowHeatImage);
+    emit signalSendHeatImage(openImageName);
+    heat.exec();
+}
+
