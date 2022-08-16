@@ -47,7 +47,7 @@ void HeatMapDialog::createHeatmapCsv(QImage &image)
     for(int k = 1; k < 10; k++) out << QString("Empty line ") + QString::number(k) + "\n";
     for(int j = 0; j < image.height(); j++){
         for(int i = 0; i < image.width(); i++){
-            double greyness = image.pixelColor(i, j).blackF();
+            double greyness = 1 - image.pixelColor(i, j).blackF();
             double temp = (max - min) * greyness + min;
 //            qDebug() << QString::number(greyness) + "," + QString::number(temp) + "\n";
             if(i == image.width() - 1) out <<  QString::number(temp) + "\n";
